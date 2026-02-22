@@ -15,6 +15,7 @@ import ChatPage from './pages/ChatPage'
 import Goals from './pages/Goals'
 import Progress from './pages/Progress'
 import Settings from './pages/Settings'
+import EditProfile from './pages/EditProfile'
 
 // PWA کامپوننت‌ها
 import InstallPrompt from './components/InstallPrompt'
@@ -85,6 +86,7 @@ function App() {
           <Route path="goals" element={<Goals />} />
           <Route path="progress" element={<Progress />} />
           <Route path="settings" element={<Settings />} />
+          <Route path="edit-profile" element={<EditProfile />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -4,6 +4,7 @@
 // ─────────────────────────────────────
 
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Sun,
   Moon,
@@ -25,6 +26,8 @@ import type { UserProfile } from '../utils/db'
 
 export default function Settings() {
   const { isDark, toggleTheme } = useThemeStore()
+  const navigate = useNavigate()
+
   const [profile, setProfile] = useState<UserProfile | undefined>()
   const [showAbout, setShowAbout] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -151,6 +154,19 @@ export default function Settings() {
               ))}
             </div>
           )}
+
+          {/* دکمه ویرایش */}
+          <button
+            onClick={() => navigate('/edit-profile')}
+            className="w-full mt-4 py-3 rounded-xl text-sm font-medium transition-all active:scale-[0.98]"
+            style={{
+              backgroundColor: 'var(--color-bg-tertiary)',
+              color: 'var(--color-accent)',
+              border: '1px solid var(--color-border)',
+            }}
+          >
+            ویرایش پروفایل
+          </button>
         </div>
       )}
 
@@ -162,10 +178,7 @@ export default function Settings() {
           border: '1px solid var(--color-border)',
         }}
       >
-        {/* لیبل بخش */}
-        <div
-          className="px-5 pt-4 pb-2"
-        >
+        <div className="px-5 pt-4 pb-2">
           <p
             className="text-xs font-bold"
             style={{ color: 'var(--color-text-secondary)' }}
@@ -174,7 +187,6 @@ export default function Settings() {
           </p>
         </div>
 
-        {/* تم تاریک/روشن */}
         <button
           onClick={toggleTheme}
           className="w-full px-5 py-4 flex items-center justify-between transition-all active:scale-[0.98]"
@@ -193,7 +205,6 @@ export default function Settings() {
             </span>
           </div>
 
-          {/* سوییچ */}
           <div
             className="w-12 h-7 rounded-full p-1 transition-all duration-300 flex items-center"
             style={{
@@ -216,7 +227,6 @@ export default function Settings() {
           border: '1px solid var(--color-border)',
         }}
       >
-        {/* لیبل بخش */}
         <div className="px-5 pt-4 pb-2">
           <p
             className="text-xs font-bold"
@@ -226,7 +236,6 @@ export default function Settings() {
           </p>
         </div>
 
-        {/* آنبوردینگ مجدد */}
         <button
           onClick={handleRedoOnboarding}
           className="w-full px-5 py-4 flex items-center justify-between transition-all active:scale-[0.98]"
@@ -234,17 +243,13 @@ export default function Settings() {
         >
           <div className="flex items-center gap-3">
             <RotateCcw size={20} style={{ color: 'var(--color-accent)' }} />
-            <span
-              className="font-medium"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
+            <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
               انجام مجدد آنبوردینگ
             </span>
           </div>
           <ChevronLeft size={18} style={{ color: 'var(--color-text-secondary)' }} />
         </button>
 
-        {/* پاک کردن چت */}
         <button
           onClick={handleClearChat}
           className="w-full px-5 py-4 flex items-center justify-between transition-all active:scale-[0.98]"
@@ -252,17 +257,13 @@ export default function Settings() {
         >
           <div className="flex items-center gap-3">
             <MessageCircle size={20} style={{ color: 'var(--color-warning)' }} />
-            <span
-              className="font-medium"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
+            <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
               پاک کردن تاریخچه چت
             </span>
           </div>
           <ChevronLeft size={18} style={{ color: 'var(--color-text-secondary)' }} />
         </button>
 
-        {/* پاک کردن همه */}
         <button
           onClick={handleResetAll}
           className="w-full px-5 py-4 flex items-center justify-between transition-all active:scale-[0.98]"
@@ -271,16 +272,10 @@ export default function Settings() {
           <div className="flex items-center gap-3">
             <AlertTriangle size={20} style={{ color: 'var(--color-danger)' }} />
             <div className="text-right">
-              <span
-                className="font-medium block"
-                style={{ color: 'var(--color-danger)' }}
-              >
+              <span className="font-medium block" style={{ color: 'var(--color-danger)' }}>
                 پاک کردن تمام داده‌ها
               </span>
-              <span
-                className="text-[10px]"
-                style={{ color: 'var(--color-text-secondary)' }}
-              >
+              <span className="text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>
                 پروفایل، چت، اهداف، پیشرفت
               </span>
             </div>
@@ -303,10 +298,7 @@ export default function Settings() {
         >
           <div className="flex items-center gap-3">
             <Info size={20} style={{ color: 'var(--color-accent)' }} />
-            <span
-              className="font-medium"
-              style={{ color: 'var(--color-text-primary)' }}
-            >
+            <span className="font-medium" style={{ color: 'var(--color-text-primary)' }}>
               درباره MODO
             </span>
           </div>
@@ -314,11 +306,7 @@ export default function Settings() {
         </button>
       </div>
 
-      {/* نسخه */}
-      <p
-        className="text-center text-xs pt-4"
-        style={{ color: 'var(--color-text-secondary)' }}
-      >
+      <p className="text-center text-xs pt-4" style={{ color: 'var(--color-text-secondary)' }}>
         MODO v1.0.0 • ساخته شده با ❤️
       </p>
 
@@ -338,12 +326,8 @@ export default function Settings() {
               border: '1px solid var(--color-border)',
             }}
           >
-            {/* هدر */}
             <div className="flex items-center justify-between mb-6">
-              <h2
-                className="text-xl font-bold"
-                style={{ color: 'var(--color-text-primary)' }}
-              >
+              <h2 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
                 درباره MODO
               </h2>
               <button
@@ -355,23 +339,15 @@ export default function Settings() {
               </button>
             </div>
 
-            {/* لوگو */}
             <div className="text-center mb-6">
-              <div
-                className="text-4xl font-black mb-2"
-                style={{ color: 'var(--color-accent)' }}
-              >
+              <div className="text-4xl font-black mb-2" style={{ color: 'var(--color-accent)' }}>
                 MODO
               </div>
-              <p
-                className="text-sm"
-                style={{ color: 'var(--color-text-secondary)' }}
-              >
+              <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
                 ساختار، وضوح، رشد
               </p>
             </div>
 
-            {/* توضیحات */}
             <div
               className="rounded-2xl p-4 mb-4"
               style={{
@@ -379,61 +355,38 @@ export default function Settings() {
                 border: '1px solid var(--color-border)',
               }}
             >
-              <p
-                className="text-sm leading-7"
-                style={{ color: 'var(--color-text-primary)' }}
-              >
+              <p className="text-sm leading-7" style={{ color: 'var(--color-text-primary)' }}>
                 MODO یک کوچ هوشمند شخصیه که با استفاده از هوش مصنوعی بهت کمک میکنه زندگیت رو سازمان‌دهی کنی، اهدافت رو مشخص کنی و هر روز یه قدم به نسخه بهتر خودت نزدیک‌تر بشی.
               </p>
             </div>
 
-            {/* اطلاعات فنی */}
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span
-                  className="text-xs"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
+                <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                   نسخه
                 </span>
-                <span
-                  className="text-xs font-medium"
-                  style={{ color: 'var(--color-text-primary)' }}
-                >
+                <span className="text-xs font-medium" style={{ color: 'var(--color-text-primary)' }}>
                   ۱.۰.۰ (MVP)
                 </span>
               </div>
               <div className="flex justify-between">
-                <span
-                  className="text-xs"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
+                <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                   موتور هوش مصنوعی
                 </span>
-                <span
-                  className="text-xs font-medium"
-                  style={{ color: 'var(--color-text-primary)' }}
-                >
+                <span className="text-xs font-medium" style={{ color: 'var(--color-text-primary)' }}>
                   Groq (Llama 3.3)
                 </span>
               </div>
               <div className="flex justify-between">
-                <span
-                  className="text-xs"
-                  style={{ color: 'var(--color-text-secondary)' }}
-                >
+                <span className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
                   ذخیره‌سازی
                 </span>
-                <span
-                  className="text-xs font-medium"
-                  style={{ color: 'var(--color-text-primary)' }}
-                >
+                <span className="text-xs font-medium" style={{ color: 'var(--color-text-primary)' }}>
                   محلی (مرورگر)
                 </span>
               </div>
             </div>
 
-            {/* دکمه بستن */}
             <button
               onClick={() => setShowAbout(false)}
               className="w-full mt-6 py-3 rounded-2xl font-medium transition-all active:scale-[0.98]"
