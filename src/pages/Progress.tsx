@@ -17,6 +17,7 @@ import {
 } from '../utils/dbHelpers'
 import { db } from '../utils/db'
 import type { DailyActivity, Badge } from '../utils/db'
+import { TrendingUp } from 'lucide-react'
 
 export default function Progress() {
   const [streak, setStreak] = useState(0)
@@ -88,7 +89,7 @@ export default function Progress() {
         className="text-2xl font-bold mb-2"
         style={{ color: 'var(--color-text-primary)' }}
       >
-        📊 پیشرفت من
+         پیشرفت من
       </h1>
 
       {/* Streak */}

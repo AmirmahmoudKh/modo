@@ -22,10 +22,10 @@ import type { Goal } from '../utils/db'
 // فیلترها
 type FilterType = 'active' | 'completed' | 'archived'
 
-const FILTERS: { value: FilterType; label: string; icon: string }[] = [
-  { value: 'active',    label: 'فعال',       icon: '⚡' },
-  { value: 'completed', label: 'تکمیل‌شده',  icon: '✅' },
-  { value: 'archived',  label: 'آرشیو',      icon: '📦' },
+const FILTERS: { value: FilterType; label: string; icon: typeof Zap }[] = [
+  { value: 'active',    label: 'فعال',       icon: Zap },
+  { value: 'completed', label: 'تکمیل‌شده',  icon: CheckCircle2 },
+  { value: 'archived',  label: 'آرشیو',      icon: Archive },
 ]
 
 export default function Goals() {
@@ -112,7 +112,7 @@ export default function Goals() {
           className="text-2xl font-bold"
           style={{ color: 'var(--color-text-primary)' }}
         >
-          🎯 اهداف من
+           اهداف من
         </h1>
         <span
           className="text-sm"
@@ -141,7 +141,7 @@ export default function Goals() {
                 : 'var(--color-border)'}`,
             }}
           >
-            <span>{f.icon}</span>
+            <f.icon size={14} />
             <span>{f.label}</span>
             <span
               className="px-1.5 py-0.5 rounded-lg text-[10px]"
