@@ -1,10 +1,4 @@
 // src/components/chat/ChatBubble.tsx
-// ─────────────────────────────────────
-// حباب پیام چت
-// کاربر: سمت چپ، رنگ accent
-// MODO: سمت راست، رنگ خاکستری
-// (چون RTL هستیم، چپ و راست برعکس LTR هست)
-// ─────────────────────────────────────
 
 interface ChatBubbleProps {
   role: 'user' | 'assistant'
@@ -15,7 +9,6 @@ interface ChatBubbleProps {
 export default function ChatBubble({ role, content, timestamp }: ChatBubbleProps) {
   const isUser = role === 'user'
 
-  // فرمت ساعت: "۱۴:۳۲"
   const timeStr = timestamp.toLocaleTimeString('fa-IR', {
     hour: '2-digit',
     minute: '2-digit',
@@ -23,25 +16,25 @@ export default function ChatBubble({ role, content, timestamp }: ChatBubbleProps
 
   return (
     <div
-      className={`flex ${isUser ? 'justify-start' : 'justify-end'} mb-3`}
+      className={`flex ${isUser ? 'justify-start' : 'justify-end'} mb-3 chat-bubble-enter`}
     >
       <div className="max-w-[80%]">
-        {/* حباب */}
         <div
-          className="rounded-2xl px-4 py-3"
+          className="rounded-2xl px-4 py-3 transition-all"
           style={{
-            backgroundColor: isUser
-              ? 'var(--color-accent)'
+            background: isUser
+              ? 'linear-gradient(135deg, var(--color-accent-gradient-start), var(--color-accent-gradient-end))'
               : 'var(--color-bg-secondary)',
             border: isUser
               ? 'none'
               : '1px solid var(--color-border)',
-            // گوشه‌های حباب
             borderTopRightRadius: isUser ? '1rem' : '0.25rem',
             borderTopLeftRadius: isUser ? '0.25rem' : '1rem',
+            boxShadow: isUser
+              ? '0 2px 12px var(--color-shadow-accent)'
+              : '0 1px 4px var(--color-shadow)',
           }}
         >
-          {/* اسم فرستنده */}
           <p
             className="text-[10px] font-bold mb-1"
             style={{
@@ -53,7 +46,6 @@ export default function ChatBubble({ role, content, timestamp }: ChatBubbleProps
             {isUser ? 'تو' : 'MODO'}
           </p>
 
-          {/* متن پیام */}
           <p
             className="text-sm leading-7 whitespace-pre-wrap"
             style={{
@@ -66,7 +58,6 @@ export default function ChatBubble({ role, content, timestamp }: ChatBubbleProps
           </p>
         </div>
 
-        {/* ساعت */}
         <p
           className={`text-[10px] mt-1 px-1 ${isUser ? 'text-left' : 'text-right'}`}
           style={{ color: 'var(--color-text-secondary)' }}

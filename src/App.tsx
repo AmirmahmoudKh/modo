@@ -32,23 +32,25 @@ function App() {
   }, [])
 
   // لودینگ
-  if (showOnboarding === null) {
+   if (showOnboarding === null) {
     return (
       <div
-        className="min-h-screen flex flex-col items-center justify-center gap-4"
+        className="min-h-screen flex flex-col items-center justify-center gap-6"
         style={{ backgroundColor: 'var(--color-bg-primary)' }}
       >
-        {/* لوگو */}
         <div
-          className="text-4xl font-black"
-          style={{ color: 'var(--color-accent)' }}
+          className="w-16 h-16 rounded-2xl flex items-center justify-center modo-btn-primary animate-breathe"
+          style={{ fontSize: '1.5rem', fontWeight: 900 }}
         >
+          M
+        </div>
+
+        <div className="text-3xl font-black modo-gradient-text">
           MODO
         </div>
 
-        {/* اسپینر */}
         <div
-          className="w-8 h-8 border-4 rounded-full animate-spin"
+          className="w-8 h-8 border-3 rounded-full animate-spin"
           style={{
             borderColor: 'var(--color-border)',
             borderTopColor: 'var(--color-accent)',

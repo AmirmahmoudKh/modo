@@ -296,21 +296,25 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       <div className="flex flex-col items-center justify-center min-h-[70vh] text-center">
         {/* لوگو */}
         <div
-          className="text-6xl font-black mb-6 tracking-tight"
-          style={{ color: 'var(--color-accent)' }}
+          className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6 modo-btn-primary animate-breathe"
+          style={{ fontSize: '2rem', fontWeight: 900 }}
+        >
+          M
+        </div>
+
+        <div
+          className="text-5xl font-black mb-4 tracking-tight modo-gradient-text"
         >
           MODO
         </div>
 
-        {/* شعار */}
         <p
-          className="text-xl font-bold mb-4"
+          className="text-lg font-bold mb-4"
           style={{ color: 'var(--color-text-primary)' }}
         >
           ساختار، وضوح، رشد
         </p>
 
-        {/* توضیح */}
         <p
           className="text-base leading-8 max-w-xs"
           style={{ color: 'var(--color-text-secondary)' }}
