@@ -1,10 +1,7 @@
 // src/pages/Goals.tsx
-// ─────────────────────────────────────
-// صفحه مدیریت اهداف
-// ─────────────────────────────────────
 
 import { useState, useEffect } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Zap, CheckCircle2, Archive as ArchiveIcon, Target } from 'lucide-react'
 import GoalCard from '../components/goals/GoalCard'
 import GoalForm from '../components/goals/GoalForm'
 import {
@@ -19,13 +16,12 @@ import {
 } from '../utils/dbHelpers'
 import type { Goal } from '../utils/db'
 
-// فیلترها
 type FilterType = 'active' | 'completed' | 'archived'
 
-const FILTERS: { value: FilterType; label: string; icon: typeof Zap }[] = [
-  { value: 'active',    label: 'فعال',       icon: Zap },
-  { value: 'completed', label: 'تکمیل‌شده',  icon: CheckCircle2 },
-  { value: 'archived',  label: 'آرشیو',      icon: Archive },
+const FILTERS: { value: FilterType; label: string; IconComp: typeof Zap }[] = [
+  { value: 'active',    label: 'فعال',       IconComp: Zap },
+  { value: 'completed', label: 'تکمیل‌شده',  IconComp: CheckCircle2 },
+  { value: 'archived',  label: 'آرشیو',      IconComp: ArchiveIcon },
 ]
 
 export default function Goals() {
@@ -34,7 +30,6 @@ export default function Goals() {
   const [showForm, setShowForm] = useState(false)
   const [loading, setLoading] = useState(true)
 
-  // ─── لود اهداف ───
   const loadGoals = async () => {
     try {
       const allGoals = await getAllGoals()
@@ -50,17 +45,14 @@ export default function Goals() {
     loadGoals()
   }, [])
 
-  // ─── فیلتر اهداف ───
   const filteredGoals = goals.filter(g => g.status === filter)
 
-  // ─── تعداد هر وضعیت ───
   const counts = {
     active: goals.filter(g => g.status === 'active').length,
     completed: goals.filter(g => g.status === 'completed').length,
     archived: goals.filter(g => g.status === 'archived').length,
   }
 
-  // ─── عملیات ───
   const handleCreate = async (title: string, description: string) => {
     await createGoal(title, description)
     await earnBadge('first_goal')
@@ -89,7 +81,6 @@ export default function Goals() {
     await loadGoals()
   }
 
-  // ─── لودینگ ───
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[80vh]">
@@ -108,12 +99,15 @@ export default function Goals() {
     <div className="p-6 pb-24">
       {/* هدر */}
       <div className="flex items-center justify-between mb-6">
-        <h1
-          className="text-2xl font-bold"
-          style={{ color: 'var(--color-text-primary)' }}
-        >
-           اهداف من
-        </h1>
+        <div className="flex items-center gap-3">
+          <Target size={24} style={{ color: 'var(--color-accent)' }} />
+          <h1
+            className="text-2xl font-bold"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            اهداف من
+          </h1>
+        </div>
         <span
           className="text-sm"
           style={{ color: 'var(--color-text-secondary)' }}
@@ -124,37 +118,40 @@ export default function Goals() {
 
       {/* فیلترها */}
       <div className="flex gap-2 mb-6">
-        {FILTERS.map((f) => (
-          <button
-            key={f.value}
-            onClick={() => setFilter(f.value)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all active:scale-95"
-            style={{
-              backgroundColor: filter === f.value
-                ? 'var(--color-accent)'
-                : 'var(--color-bg-secondary)',
-              color: filter === f.value
-                ? '#FFFFFF'
-                : 'var(--color-text-secondary)',
-              border: `1px solid ${filter === f.value
-                ? 'var(--color-accent)'
-                : 'var(--color-border)'}`,
-            }}
-          >
-            <f.icon size={14} />
-            <span>{f.label}</span>
-            <span
-              className="px-1.5 py-0.5 rounded-lg text-[10px]"
+        {FILTERS.map((f) => {
+          const Icon = f.IconComp
+          return (
+            <button
+              key={f.value}
+              onClick={() => setFilter(f.value)}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all active:scale-95"
               style={{
                 backgroundColor: filter === f.value
-                  ? 'rgba(255,255,255,0.2)'
-                  : 'var(--color-bg-tertiary)',
+                  ? 'var(--color-accent)'
+                  : 'var(--color-bg-secondary)',
+                color: filter === f.value
+                  ? '#FFFFFF'
+                  : 'var(--color-text-secondary)',
+                border: `1px solid ${filter === f.value
+                  ? 'var(--color-accent)'
+                  : 'var(--color-border)'}`,
               }}
             >
-              {counts[f.value]}
-            </span>
-          </button>
-        ))}
+              <Icon size={14} />
+              <span>{f.label}</span>
+              <span
+                className="px-1.5 py-0.5 rounded-lg text-[10px]"
+                style={{
+                  backgroundColor: filter === f.value
+                    ? 'rgba(255,255,255,0.2)'
+                    : 'var(--color-bg-tertiary)',
+                }}
+              >
+                {counts[f.value]}
+              </span>
+            </button>
+          )
+        })}
       </div>
 
       {/* لیست اهداف */}
@@ -172,7 +169,6 @@ export default function Goals() {
           ))}
         </div>
       ) : (
-        // حالت خالی
         <div
           className="rounded-2xl p-8 text-center mt-8"
           style={{
@@ -180,9 +176,10 @@ export default function Goals() {
             border: '2px dashed var(--color-border)',
           }}
         >
-          <span className="text-4xl block mb-3">
-            {filter === 'active' ? '🎯' : filter === 'completed' ? '🏆' : '📦'}
-          </span>
+          {filter === 'active' && <Zap size={40} className="mx-auto mb-3" style={{ color: 'var(--color-accent)' }} />}
+          {filter === 'completed' && <CheckCircle2 size={40} className="mx-auto mb-3" style={{ color: 'var(--color-success)' }} />}
+          {filter === 'archived' && <ArchiveIcon size={40} className="mx-auto mb-3" style={{ color: 'var(--color-text-secondary)' }} />}
+
           <p
             className="font-medium mb-1"
             style={{ color: 'var(--color-text-primary)' }}
@@ -221,7 +218,7 @@ export default function Goals() {
         </div>
       )}
 
-      {/* دکمه شناور ساخت هدف */}
+      {/* دکمه شناور */}
       <button
         onClick={() => setShowForm(true)}
         className="fixed left-6 bottom-24 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-90 hover:scale-110"
@@ -234,7 +231,7 @@ export default function Goals() {
         <Plus size={28} strokeWidth={2.5} />
       </button>
 
-      {/* فرم ساخت هدف */}
+      {/* فرم */}
       {showForm && (
         <GoalForm
           onSubmit={handleCreate}

@@ -1,9 +1,7 @@
 // src/pages/Progress.tsx
-// ─────────────────────────────────────
-// صفحه ردیابی پیشرفت
-// ─────────────────────────────────────
 
 import { useState, useEffect } from 'react'
+import { BarChart3 } from 'lucide-react'
 import StreakCard from '../components/progress/StreakCard'
 import StatsOverview from '../components/progress/StatsOverview'
 import ActivityCalendar from '../components/progress/ActivityCalendar'
@@ -17,7 +15,6 @@ import {
 } from '../utils/dbHelpers'
 import { db } from '../utils/db'
 import type { DailyActivity, Badge } from '../utils/db'
-import { TrendingUp } from 'lucide-react'
 
 export default function Progress() {
   const [streak, setStreak] = useState(0)
@@ -31,29 +28,23 @@ export default function Progress() {
   useEffect(() => {
     async function loadProgress() {
       try {
-        // Streak
         const s = await calculateStreak()
         setStreak(s)
 
-        // فعالیت‌ها (۳۵ روز)
         const acts = await getRecentActivity(35)
         setActivities(acts)
 
-        // اهداف
         const goals = await getAllGoals()
         setTotalGoals(goals.length)
 
         const completed = await getCompletedGoalsCount()
         setCompletedGoals(completed)
 
-        // تعداد چت‌ها
         const chatCount = await db.chatMessages.count()
         setTotalChats(chatCount)
 
-        // نشان‌ها
         const badges = await getEarnedBadges()
         setEarnedBadges(badges)
-
       } catch (error) {
         console.error('خطا در بارگذاری:', error)
       } finally {
@@ -64,10 +55,8 @@ export default function Progress() {
     loadProgress()
   }, [])
 
-  // تعداد روزهای فعال
   const totalActiveDays = activities.filter(a => a.active).length
 
-  // لودینگ
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[80vh]">
@@ -85,28 +74,24 @@ export default function Progress() {
   return (
     <div className="p-6 space-y-4">
       {/* هدر */}
-      <h1
-        className="text-2xl font-bold mb-2"
-        style={{ color: 'var(--color-text-primary)' }}
-      >
-         پیشرفت من
-      </h1>
+      <div className="flex items-center gap-3 mb-2">
+        <BarChart3 size={24} style={{ color: 'var(--color-accent)' }} />
+        <h1
+          className="text-2xl font-bold"
+          style={{ color: 'var(--color-text-primary)' }}
+        >
+          پیشرفت من
+        </h1>
+      </div>
 
-      {/* Streak */}
       <StreakCard streak={streak} />
-
-      {/* آمار کلی */}
       <StatsOverview
         totalActiveDays={totalActiveDays}
         totalGoals={totalGoals}
         completedGoals={completedGoals}
         totalChats={totalChats}
       />
-
-      {/* تقویم */}
       <ActivityCalendar activities={activities} />
-
-      {/* نشان‌ها */}
       <BadgeList earnedBadges={earnedBadges} />
     </div>
   )
