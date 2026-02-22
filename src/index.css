@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+/* === MODO Custom Design Tokens === */
+
+/* Dark mode colors */
+:root {
+  --color-bg-primary: #FAFAFA;
+  --color-bg-secondary: #FFFFFF;
+  --color-bg-tertiary: #F4F4F5;
+  --color-text-primary: #18181B;
+  --color-text-secondary: #71717A;
+  --color-accent: #6C63FF;
+  --color-accent-hover: #5B54E6;
+  --color-accent-light: #E8E6FF;
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+  --color-border: #E4E4E7;
+}
+
+.dark {
+  --color-bg-primary: #0F0F14;
+  --color-bg-secondary: #1A1A2E;
+  --color-bg-tertiary: #252540;
+  --color-text-primary: #E4E4E7;
+  --color-text-secondary: #A1A1AA;
+  --color-accent: #6C63FF;
+  --color-accent-hover: #7B73FF;
+  --color-accent-light: #1E1B4B;
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+  --color-border: #2E2E45;
+}
+
+/* Base styles */
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: 'Vazirmatn', 'Segoe UI', Tahoma, sans-serif;
+  direction: rtl;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+  border-radius: 4px;
+}
