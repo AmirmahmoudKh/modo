@@ -104,8 +104,7 @@ export default function Home() {
       {/* دکمه چت */}
       <button
         onClick={() => navigate('/chat')}
-        className="w-full rounded-2xl p-4 flex items-center justify-center gap-3 text-white font-bold text-lg transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-        style={{ backgroundColor: 'var(--color-accent)' }}
+        className="w-full rounded-2xl p-4 flex items-center justify-center gap-3 text-white font-bold text-lg modo-btn modo-btn-primary"
       >
         <MessageCircle size={22} />
         <span>شروع چت با MODO</span>

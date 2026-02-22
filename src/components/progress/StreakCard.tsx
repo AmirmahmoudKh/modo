@@ -31,25 +31,24 @@ export default function StreakCard({ streak }: StreakCardProps) {
 
   return (
     <div
-      className="rounded-2xl p-6 text-center"
+      className="modo-card text-center animate-slide-up"
       style={{
-        backgroundColor: 'var(--color-bg-secondary)',
-        border: '1px solid var(--color-border)',
+        boxShadow: streak > 0 ? `0 4px 20px ${color}20` : undefined,
       }}
     >
-      {streak === 0 ? (
-        <Moon size={48} style={{ color }} className="mx-auto mb-3" />
-      ) : (
-        <Flame size={48} style={{ color }} className="mx-auto mb-3" />
-      )}
-
-      <p className="text-4xl font-black mb-1" style={{ color }}>
-        {streak}
-      </p>
-      <p
-        className="text-sm font-medium mb-3"
-        style={{ color: 'var(--color-text-secondary)' }}
+      <div
+        className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3"
+        style={{ backgroundColor: `${color}15` }}
       >
+        {streak === 0 ? (
+          <Moon size={32} style={{ color }} />
+        ) : (
+          <Flame size={32} style={{ color }} />
+        )}
+      </div>
+
+      <p className="text-4xl font-black mb-1" style={{ color }}>{streak}</p>
+      <p className="text-sm font-medium mb-3" style={{ color: 'var(--color-text-secondary)' }}>
         روز متوالی
       </p>
 

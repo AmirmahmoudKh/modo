@@ -1,13 +1,8 @@
 // src/components/BottomNav.tsx
-// ─────────────────────────────────────
-// نوار ناوبری پایین صفحه (مثل اینستاگرام)
-// ۵ تا دکمه: خانه، چت، اهداف، پیشرفت، تنظیمات
-// ─────────────────────────────────────
 
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Home, MessageCircle, Target, BarChart3, Settings } from 'lucide-react'
 
-// تعریف آیتم‌های ناوبری
 const navItems = [
   { path: '/',         icon: Home,           label: 'خانه' },
   { path: '/chat',     icon: MessageCircle,  label: 'چت' },
@@ -17,9 +12,7 @@ const navItems = [
 ]
 
 export default function BottomNav() {
-  // useLocation: میگه الان کجای اپ هستیم
   const location = useLocation()
-  // useNavigate: برای رفتن به صفحه دیگه
   const navigate = useNavigate()
 
   return (
@@ -28,10 +21,10 @@ export default function BottomNav() {
       style={{
         backgroundColor: 'var(--color-bg-secondary)',
         borderColor: 'var(--color-border)',
+        boxShadow: '0 -2px 10px var(--color-shadow)',
       }}
     >
       {navItems.map((item) => {
-        // چک کن آیا این آیتم صفحه فعلی هست
         const isActive = location.pathname === item.path
         const Icon = item.icon
 
@@ -39,14 +32,29 @@ export default function BottomNav() {
           <button
             key={item.path}
             onClick={() => navigate(item.path)}
-            className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl transition-all duration-200 active:scale-95"
+            className="flex flex-col items-center justify-center gap-1 p-2 rounded-xl transition-all duration-200 active:scale-95 relative"
             style={{
               color: isActive
-                ? 'var(--color-accent)'       // بنفش اگه فعاله
-                : 'var(--color-text-secondary)' // خاکستری اگه غیرفعاله
+                ? 'var(--color-accent)'
+                : 'var(--color-text-secondary)',
             }}
           >
-            <Icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
+            {/* نقطه فعال */}
+            {isActive && (
+              <div
+                className="absolute -top-1 w-6 h-1 rounded-full"
+                style={{ backgroundColor: 'var(--color-accent)' }}
+              />
+            )}
+
+            <div
+              className="p-1 rounded-lg transition-all"
+              style={{
+                backgroundColor: isActive ? 'var(--color-accent-glow)' : 'transparent',
+              }}
+            >
+              <Icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
+            </div>
             <span className="text-[10px] font-medium">{item.label}</span>
           </button>
         )

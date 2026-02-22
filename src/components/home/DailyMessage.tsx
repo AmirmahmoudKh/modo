@@ -35,15 +35,14 @@ export default function DailyMessage({ userName }: DailyMessageProps) {
   const message = getTodayMessage()
 
   return (
-    <div
-      className="rounded-2xl p-5"
-      style={{
-        backgroundColor: 'var(--color-accent-light)',
-        border: '1px solid var(--color-accent)',
-      }}
-    >
+    <div className="modo-card-accent animate-fade-in">
       <div className="flex items-center gap-2 mb-3">
-        <MessageCircle size={16} style={{ color: 'var(--color-accent)' }} />
+        <div
+          className="w-7 h-7 rounded-lg flex items-center justify-center"
+          style={{ backgroundColor: 'var(--color-accent)', opacity: 0.9 }}
+        >
+          <MessageCircle size={14} color="white" />
+        </div>
         <span
           className="text-sm font-bold"
           style={{ color: 'var(--color-accent)' }}
