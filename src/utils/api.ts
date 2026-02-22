@@ -5,10 +5,11 @@
 
 import type { ChatMessage, UserProfile } from './db'
 import { getMockResponse } from './mockResponses'
-// آدرس بکند
-const API_BASE = import.meta.env.PROD
-  ? 'https://modo-backend-cqn5.onrender.com'   // ← آدرس Render خودت
-  : ''   // لوکال: از proxy استفاده میکنه
+
+// آدرس بکند - روش مطمئن‌تر
+const API_BASE = window.location.hostname === 'localhost'
+  ? ''  // لوکال: از proxy استفاده میکنه
+  : 'https://modo-backend-cqn5.onrender.com'  // آنلاین
 
 // ─── ارسال پیام به AI ───
 export async function sendMessageToAI(
@@ -37,7 +38,7 @@ export async function sendMessageToAI(
       : undefined
 
     // ─── ارسال به بکند ───
-      const response = await fetch(`${API_BASE}/api/chat`, {
+    const response = await fetch(`${API_BASE}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
