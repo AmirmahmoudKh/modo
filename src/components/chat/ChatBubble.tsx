@@ -1,4 +1,7 @@
 // src/components/chat/ChatBubble.tsx
+// ─────────────────────────────────────
+// بابل پیام — طراحی مدرن
+// ─────────────────────────────────────
 
 interface ChatBubbleProps {
   role: 'user' | 'assistant'
@@ -16,51 +19,51 @@ export default function ChatBubble({ role, content, timestamp }: ChatBubbleProps
 
   return (
     <div
-      className={`flex ${isUser ? 'justify-start' : 'justify-end'} mb-3 chat-bubble-enter`}
+      className={`flex ${isUser ? 'justify-start' : 'justify-end'} mb-4 chat-bubble-enter`}
     >
-      <div className="max-w-[80%]">
+      {/* آواتار MODO (فقط برای assistant) */}
+      {!isUser && (
         <div
-          className="rounded-2xl px-4 py-3 transition-all"
+          className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center font-black text-[10px] ml-2 mt-1"
+          style={{
+            background: 'linear-gradient(135deg, var(--color-accent-gradient-start), var(--color-accent-gradient-end))',
+            color: '#FFFFFF',
+          }}
+        >
+          M
+        </div>
+      )}
+
+      <div className="max-w-[78%]">
+        <div
+          className="px-4 py-3"
           style={{
             background: isUser
               ? 'linear-gradient(135deg, var(--color-accent-gradient-start), var(--color-accent-gradient-end))'
               : 'var(--color-bg-secondary)',
-            border: isUser
-              ? 'none'
-              : '1px solid var(--color-border)',
-            borderTopRightRadius: isUser ? '1rem' : '0.25rem',
-            borderTopLeftRadius: isUser ? '0.25rem' : '1rem',
+            border: isUser ? 'none' : '1px solid var(--color-border)',
+            borderRadius: isUser
+              ? '20px 4px 20px 20px'
+              : '4px 20px 20px 20px',
             boxShadow: isUser
               ? '0 2px 12px var(--color-shadow-accent)'
               : '0 1px 4px var(--color-shadow)',
           }}
         >
           <p
-            className="text-[10px] font-bold mb-1"
-            style={{
-              color: isUser
-                ? 'rgba(255,255,255,0.7)'
-                : 'var(--color-accent)',
-            }}
-          >
-            {isUser ? 'تو' : 'MODO'}
-          </p>
-
-          <p
             className="text-sm leading-7 whitespace-pre-wrap"
             style={{
-              color: isUser
-                ? '#FFFFFF'
-                : 'var(--color-text-primary)',
+              color: isUser ? '#FFFFFF' : 'var(--color-text-primary)',
             }}
           >
             {content}
           </p>
         </div>
 
+        {/* زمان */}
         <p
-          className={`text-[10px] mt-1 px-1 ${isUser ? 'text-left' : 'text-right'}`}
-          style={{ color: 'var(--color-text-secondary)' }}
+          className={`text-[10px] mt-1 px-2 ${isUser ? 'text-left' : 'text-right'}`}
+          style={{ color: 'var(--color-text-secondary)', opacity: 0.7 }}
         >
           {timeStr}
         </p>

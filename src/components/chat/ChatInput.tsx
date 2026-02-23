@@ -1,35 +1,30 @@
 // src/components/chat/ChatInput.tsx
 // ─────────────────────────────────────
-// فیلد ورودی پیام + دکمه ارسال
+// ورودی پیام — Glass effect
 // ─────────────────────────────────────
 
 import { useState, useRef } from 'react'
 import { Send } from 'lucide-react'
 
 interface ChatInputProps {
-  onSend: (message: string) => void  // تابعی که پیام رو ارسال میکنه
-  disabled?: boolean                  // وقتی MODO داره جواب میده، غیرفعال بشه
+  onSend: (message: string) => void
+  disabled?: boolean
 }
 
 export default function ChatInput({ onSend, disabled = false }: ChatInputProps) {
   const [text, setText] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
-  // ارسال پیام
   const handleSend = () => {
     const trimmed = text.trim()
     if (!trimmed || disabled) return
-
     onSend(trimmed)
     setText('')
-
-    // ارتفاع textarea رو ریست کن
     if (textareaRef.current) {
       textareaRef.current.style.height = 'auto'
     }
   }
 
-  // وقتی Enter زده بشه → ارسال (Shift+Enter → خط جدید)
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
@@ -37,10 +32,8 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
     }
   }
 
-  // ارتفاع textarea خودکار زیاد بشه
   const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value)
-    // ارتفاع رو خودکار تنظیم کن
     const el = e.target
     el.style.height = 'auto'
     el.style.height = Math.min(el.scrollHeight, 120) + 'px'
@@ -50,10 +43,10 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
 
   return (
     <div
-      className="fixed bottom-16 left-0 right-0 p-3 border-t"
+      className="fixed bottom-16 left-0 right-0 p-3 border-t modo-glass"
       style={{
-        backgroundColor: 'var(--color-bg-primary)',
-        borderColor: 'var(--color-border)',
+        backgroundColor: 'var(--color-nav-bg)',
+        borderColor: 'var(--color-glass-border)',
       }}
     >
       <div
@@ -61,6 +54,7 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
         style={{
           backgroundColor: 'var(--color-bg-secondary)',
           border: '1px solid var(--color-border)',
+          boxShadow: '0 2px 8px var(--color-shadow)',
         }}
       >
         {/* فیلد متنی */}
@@ -83,22 +77,21 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
         <button
           onClick={handleSend}
           disabled={!hasText || disabled}
-          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-200 active:scale-90"
+          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-300 active:scale-90"
           style={{
-            backgroundColor: hasText && !disabled
-              ? 'var(--color-accent)'
+            background: hasText && !disabled
+              ? 'linear-gradient(135deg, var(--color-accent-gradient-start), var(--color-accent-gradient-end))'
               : 'var(--color-bg-tertiary)',
             transform: hasText ? 'scale(1)' : 'scale(0.9)',
+            boxShadow: hasText && !disabled ? '0 2px 8px var(--color-shadow-accent)' : 'none',
           }}
         >
           <Send
             size={18}
             style={{
-              color: hasText && !disabled
-                ? '#FFFFFF'
-                : 'var(--color-text-secondary)',
-              // آیکون رو بچرخون برای RTL
+              color: hasText && !disabled ? '#FFFFFF' : 'var(--color-text-secondary)',
               transform: 'scaleX(-1)',
+              transition: 'color 0.3s ease',
             }}
           />
         </button>

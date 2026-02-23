@@ -4,7 +4,7 @@
 // ─────────────────────────────────────
 
 import { useState, useEffect } from 'react'
-import { Plus, ListChecks, X } from 'lucide-react'
+import { Plus, ListChecks, X, ClipboardList, Sparkles } from 'lucide-react'
 import TaskItem from './TaskItem'
 import {
   ensureTodayTasks,
@@ -25,7 +25,6 @@ export default function DailyTasks({ onTaskChange }: DailyTasksProps) {
   const [showAddForm, setShowAddForm] = useState(false)
   const [newTaskTitle, setNewTaskTitle] = useState('')
 
-  // ─── لود تسک‌ها ───
   useEffect(() => {
     loadTasks()
   }, [])
@@ -49,11 +48,9 @@ export default function DailyTasks({ onTaskChange }: DailyTasksProps) {
     }
   }
 
-  // ─── تیک زدن ───
   const handleToggle = async (id: number) => {
     await toggleTask(id)
     await checkAndAwardBadges()
-
     setTasks(prev => {
       const updated = prev.map(t =>
         t.id === id ? { ...t, completed: !t.completed } : t
@@ -63,7 +60,6 @@ export default function DailyTasks({ onTaskChange }: DailyTasksProps) {
     })
   }
 
-  // ─── حذف (سوایپ) ───
   const handleDelete = async (id: number) => {
     await deleteTask(id)
     setTasks(prev => {
@@ -73,11 +69,9 @@ export default function DailyTasks({ onTaskChange }: DailyTasksProps) {
     })
   }
 
-  // ─── اضافه کردن تسک ───
   const handleAddTask = async () => {
     const title = newTaskTitle.trim()
     if (!title) return
-
     const id = await addManualTask(title)
     const newTask: Task = {
       id,
@@ -88,18 +82,15 @@ export default function DailyTasks({ onTaskChange }: DailyTasksProps) {
       icon: '📌',
       createdAt: new Date(),
     }
-
     setTasks(prev => {
       const updated = [...prev, newTask]
       notifyParent(updated)
       return updated
     })
-
     setNewTaskTitle('')
     setShowAddForm(false)
   }
 
-  // ─── کلید Enter ───
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleAddTask()
     if (e.key === 'Escape') {
@@ -108,15 +99,14 @@ export default function DailyTasks({ onTaskChange }: DailyTasksProps) {
     }
   }
 
-  // ─── لودینگ ───
   if (loading) {
     return (
       <div className="modo-card">
         <div className="animate-pulse space-y-3">
-          <div className="h-5 rounded w-1/3" style={{ backgroundColor: 'var(--color-bg-tertiary)' }} />
-          <div className="h-14 rounded-xl" style={{ backgroundColor: 'var(--color-bg-tertiary)' }} />
-          <div className="h-14 rounded-xl" style={{ backgroundColor: 'var(--color-bg-tertiary)' }} />
-          <div className="h-14 rounded-xl" style={{ backgroundColor: 'var(--color-bg-tertiary)' }} />
+          <div className="h-5 rounded w-1/3 modo-skeleton" />
+          <div className="h-14 rounded-xl modo-skeleton" />
+          <div className="h-14 rounded-xl modo-skeleton" />
+          <div className="h-14 rounded-xl modo-skeleton" />
         </div>
       </div>
     )
@@ -171,7 +161,7 @@ export default function DailyTasks({ onTaskChange }: DailyTasksProps) {
             style={{
               width: `${(completedCount / totalCount) * 100}%`,
               background: allDone
-                ? `linear-gradient(135deg, var(--color-accent-gradient-start), var(--color-accent-gradient-end))`
+                ? 'linear-gradient(135deg, var(--color-accent-gradient-start), var(--color-accent-gradient-end))'
                 : 'var(--color-accent)',
               transition: 'width 0.5s ease, background 0.3s ease',
               boxShadow: allDone ? '0 0 8px var(--color-accent-glow)' : 'none',
@@ -189,7 +179,7 @@ export default function DailyTasks({ onTaskChange }: DailyTasksProps) {
             border: '1px solid var(--color-border)',
           }}
         >
-          <span className="text-lg">📌</span>
+          <Plus size={16} style={{ color: 'var(--color-accent)' }} />
           <input
             type="text"
             placeholder="مثلاً: زنگ بزن به دانشگاه"
@@ -211,10 +201,10 @@ export default function DailyTasks({ onTaskChange }: DailyTasksProps) {
         </div>
       )}
 
-      {/* لیست تسک‌ها */}
+      {/* لیست */}
       {tasks.length === 0 ? (
         <div className="text-center py-8" style={{ color: 'var(--color-text-secondary)' }}>
-          <p className="text-3xl mb-2">📋</p>
+          <ClipboardList size={32} className="mx-auto mb-3" style={{ color: 'var(--color-border)' }} />
           <p className="text-sm">هنوز تسکی نداری</p>
           <p className="text-xs mt-1">با دکمه + یه تسک اضافه کن</p>
         </div>
@@ -231,7 +221,7 @@ export default function DailyTasks({ onTaskChange }: DailyTasksProps) {
         </div>
       )}
 
-      {/* پیام تکمیل همه تسک‌ها */}
+      {/* پیام تکمیل */}
       {allDone && (
         <div
           className="text-center py-3 mt-2 rounded-xl animate-scale-in"
@@ -240,8 +230,8 @@ export default function DailyTasks({ onTaskChange }: DailyTasksProps) {
             color: 'var(--color-accent)',
           }}
         >
-          <p className="text-lg mb-1">🎉</p>
-          <p className="text-sm font-medium">آفرین! همه تسک‌های امروز انجام شد!</p>
+          <Sparkles size={22} className="mx-auto mb-1" />
+          <p className="text-sm font-medium">آفرین! همه تسک‌های امروز انجام شد</p>
         </div>
       )}
     </div>
