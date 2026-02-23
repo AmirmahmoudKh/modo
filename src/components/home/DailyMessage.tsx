@@ -10,7 +10,7 @@ interface DailyMessageProps {
   streak?: number
 }
 
-// ─── ساعت روز (اصلاح‌شده برای فرهنگ ایرانی) ───ّ
+// ─── ساعت روز ───
 function getTimeSlot(): 'morning' | 'afternoon' | 'evening' | 'night' {
   const hour = new Date().getHours()
   if (hour >= 5 && hour < 12) return 'morning'
@@ -32,7 +32,7 @@ function getGreeting(name: string): string {
 }
 
 // ─── پیام‌ها ───
-function getMessage(name: string, streak: number): string {
+function getMessage(streak: number): string {
   const slot = getTimeSlot()
   const dayOfMonth = new Date().getDate()
 
@@ -141,7 +141,7 @@ function getMessage(name: string, streak: number): string {
 
 export default function DailyMessage({ userName, streak = 0 }: DailyMessageProps) {
   const greeting = getGreeting(userName)
-  const message = getMessage(userName, streak)
+  const message = getMessage(streak)
 
   return (
     <div
