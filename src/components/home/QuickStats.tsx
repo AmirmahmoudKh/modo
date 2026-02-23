@@ -11,7 +11,7 @@ interface QuickStatsProps {
 export default function QuickStats({ streak, todayTasks, activeGoals }: QuickStatsProps) {
   const stats = [
     { icon: Flame, value: streak, label: 'Streak', unit: 'روز', color: '#F97316' },
-    { icon: CheckCircle2, value: todayTasks, label: 'امروز', unit: 'تسک', color: 'var(--color-success)' },
+    { icon: CheckCircle2, value: todayTasks, label: 'امروز', unit: 'تسک', color: 'var(--color-accent)' },
     { icon: Target, value: activeGoals, label: 'فعال', unit: 'هدف', color: 'var(--color-accent)' },
   ]
 

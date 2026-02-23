@@ -28,8 +28,8 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
 
   const typeColor: Record<string, string> = {
     auto: 'var(--color-accent)',
-    manual: '#f59e0b',
-    habit: 'var(--color-success)',
+    manual: 'var(--color-warning)',
+    habit: 'var(--color-accent)',
   }
 
   // ─── Touch Handlers ───
@@ -48,14 +48,12 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
     const deltaX = currentX - touchStartX.current
     const deltaY = Math.abs(currentY - touchStartY.current)
 
-    // اگه عمودی اسکرول میکنه → کنسل سوایپ
     if (deltaY > 15 && Math.abs(deltaX) < 15) {
       setIsSwiping(false)
       setSwipeX(0)
       return
     }
 
-    // سوایپ به راست → نشون دادن Delete
     if (deltaX > 5) {
       hasMoved.current = true
       setSwipeX(Math.min(deltaX, 100))
@@ -93,7 +91,7 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
         className="relative rounded-2xl p-4 flex items-center gap-3"
         style={{
           backgroundColor: 'var(--color-bg-secondary)',
-          border: `1px solid ${task.completed ? 'var(--color-success)' : 'var(--color-border)'}`,
+          border: `1px solid ${task.completed ? 'var(--color-accent)' : 'var(--color-border)'}`,
           transform: `translateX(${swipeX}px)`,
           transition: isSwiping ? 'none' : 'transform 0.3s ease-out',
         }}
@@ -106,8 +104,8 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
         <div
           className="flex-shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center"
           style={{
-            borderColor: task.completed ? 'var(--color-success)' : 'var(--color-border)',
-            backgroundColor: task.completed ? 'var(--color-success)' : 'transparent',
+            borderColor: task.completed ? 'var(--color-accent)' : 'var(--color-border)',
+            backgroundColor: task.completed ? 'var(--color-accent)' : 'transparent',
             transition: 'all 0.3s ease',
           }}
         >

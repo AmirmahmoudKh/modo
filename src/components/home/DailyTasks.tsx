@@ -42,12 +42,12 @@ export default function DailyTasks({ onTaskChange }: DailyTasksProps) {
     }
   }
 
-function notifyParent(taskList: Task[]) {
-  if (onTaskChange) {
-    const completed = taskList.filter(t => t.completed).length
-    onTaskChange(completed)
+  function notifyParent(taskList: Task[]) {
+    if (onTaskChange) {
+      const completed = taskList.filter(t => t.completed).length
+      onTaskChange(completed)
+    }
   }
-}
 
   // ─── تیک زدن ───
   const handleToggle = async (id: number) => {
@@ -139,8 +139,8 @@ function notifyParent(taskList: Task[]) {
             <span
               className="text-xs px-2 py-0.5 rounded-full font-medium"
               style={{
-                backgroundColor: allDone ? 'rgba(34, 197, 94, 0.15)' : 'var(--color-bg-tertiary)',
-                color: allDone ? 'var(--color-success)' : 'var(--color-text-secondary)',
+                backgroundColor: allDone ? 'var(--color-accent-glow)' : 'var(--color-bg-tertiary)',
+                color: allDone ? 'var(--color-accent)' : 'var(--color-text-secondary)',
               }}
             >
               {completedCount}/{totalCount}
@@ -170,8 +170,11 @@ function notifyParent(taskList: Task[]) {
             className="h-full rounded-full"
             style={{
               width: `${(completedCount / totalCount) * 100}%`,
-              backgroundColor: allDone ? 'var(--color-success)' : 'var(--color-accent)',
-              transition: 'width 0.5s ease, background-color 0.3s ease',
+              background: allDone
+                ? `linear-gradient(135deg, var(--color-accent-gradient-start), var(--color-accent-gradient-end))`
+                : 'var(--color-accent)',
+              transition: 'width 0.5s ease, background 0.3s ease',
+              boxShadow: allDone ? '0 0 8px var(--color-accent-glow)' : 'none',
             }}
           />
         </div>
@@ -180,7 +183,7 @@ function notifyParent(taskList: Task[]) {
       {/* فرم اضافه کردن */}
       {showAddForm && (
         <div
-          className="flex items-center gap-2 mb-4 p-3 rounded-xl"
+          className="flex items-center gap-2 mb-4 p-3 rounded-xl animate-fade-in"
           style={{
             backgroundColor: 'var(--color-bg-tertiary)',
             border: '1px solid var(--color-border)',
@@ -231,10 +234,10 @@ function notifyParent(taskList: Task[]) {
       {/* پیام تکمیل همه تسک‌ها */}
       {allDone && (
         <div
-          className="text-center py-3 mt-2 rounded-xl"
+          className="text-center py-3 mt-2 rounded-xl animate-scale-in"
           style={{
-            backgroundColor: 'rgba(34, 197, 94, 0.1)',
-            color: 'var(--color-success)',
+            backgroundColor: 'var(--color-accent-glow)',
+            color: 'var(--color-accent)',
           }}
         >
           <p className="text-lg mb-1">🎉</p>
