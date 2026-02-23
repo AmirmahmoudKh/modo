@@ -16,7 +16,7 @@ import {
 import type { Task } from '../../utils/db'
 
 interface DailyTasksProps {
-  onTaskChange?: (completed: number, total: number) => void
+  onTaskChange?: (completed: number) => void
 }
 
 export default function DailyTasks({ onTaskChange }: DailyTasksProps) {
@@ -42,12 +42,12 @@ export default function DailyTasks({ onTaskChange }: DailyTasksProps) {
     }
   }
 
-  function notifyParent(taskList: Task[]) {
-    if (onTaskChange) {
-      const completed = taskList.filter(t => t.completed).length
-      onTaskChange(completed, taskList.length)
-    }
+function notifyParent(taskList: Task[]) {
+  if (onTaskChange) {
+    const completed = taskList.filter(t => t.completed).length
+    onTaskChange(completed)
   }
+}
 
   // ─── تیک زدن ───
   const handleToggle = async (id: number) => {

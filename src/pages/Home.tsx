@@ -54,7 +54,7 @@ export default function Home() {
     loadData()
   }, [])
 
-  const handleTaskChange = (completed: number, _total: number) => {
+  const handleTaskChange = (completed: number) => {
     setTodayCompleted(completed)
   }
 
@@ -84,7 +84,6 @@ export default function Home() {
         activeGoals={activeGoalsCount}
       />
 
-      {/* پیام روزانه - حالا streak هم میگیره */}
       <DailyMessage userName={userName} streak={streak} />
 
       <DailyTasks onTaskChange={handleTaskChange} />

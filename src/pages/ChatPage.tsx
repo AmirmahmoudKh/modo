@@ -4,7 +4,7 @@
 // ─────────────────────────────────────
 
 import { useState, useEffect, useRef } from 'react'
-import { Trash2, ArrowRight } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
 import ChatBubble from '../components/chat/ChatBubble'
 import ChatInput from '../components/chat/ChatInput'
 import TypingIndicator from '../components/chat/TypingIndicator'
@@ -53,7 +53,7 @@ export default function ChatPage() {
 
         if (history.length === 0) {
           const welcomeText = profile
-            ? `سلام ${profile.name}! من MODO هستم، کوچ شخصیت.\n\nاینجام که کمکت کنم به زندگیت نظم بدی، اهدافت رو مشخص کنی و هر روز یه قدم جلوتر بری.\n\nاز پروفایلت میبینم که دنبال تغییر هستی. عالیه!\n\nاز چی میخوای شروع کنیم؟`
+            ? `سلام ${profile.name}! من MODO هستم، کوچ شخصیت.\n\nاینجام که کمکت کنم به زندگیت نظم بدی، اهدافت رو مشخص کنی و هر روز یه قدم جلوتر بری.\n\nاز پروفایلت میبینم که دنبال تغییر هستی.\n\nاز چی میخوای شروع کنیم؟`
             : WELCOME_MESSAGE
 
           await saveChatMessage('assistant', welcomeText)
@@ -118,7 +118,6 @@ export default function ChatPage() {
     setIsTyping(true)
 
     try {
-      // جمع‌آوری context واقعی
       const context = await gatherContext()
 
       const response = await sendMessageToAI(
