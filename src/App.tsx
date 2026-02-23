@@ -1,26 +1,50 @@
 // src/App.tsx
 // ─────────────────────────────────────
-// فایل اصلی اپ MODO
+// فایل اصلی — Lazy loading + Error boundary
 // ─────────────────────────────────────
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { hasCompletedOnboarding } from './utils/dbHelpers'
 import { startNotificationScheduler } from './utils/notifications'
-
-// صفحات
-import Onboarding from './pages/Onboarding'
+import ErrorBoundary from './components/ErrorBoundary'
 import Layout from './components/Layout'
-import Home from './pages/Home'
-import ChatPage from './pages/ChatPage'
-import Goals from './pages/Goals'
-import Progress from './pages/Progress'
-import Settings from './pages/Settings'
-import EditProfile from './pages/EditProfile'
 
 // PWA
 import InstallPrompt from './components/InstallPrompt'
 import OfflineNotice from './components/OfflineNotice'
+
+// ─── Lazy loading صفحات ───
+const Onboarding = lazy(() => import('./pages/Onboarding'))
+const Home = lazy(() => import('./pages/Home'))
+const ChatPage = lazy(() => import('./pages/ChatPage'))
+const Goals = lazy(() => import('./pages/Goals'))
+const Progress = lazy(() => import('./pages/Progress'))
+const Settings = lazy(() => import('./pages/Settings'))
+const EditProfile = lazy(() => import('./pages/EditProfile'))
+
+// ─── لودینگ صفحات ───
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <div className="flex flex-col items-center gap-4">
+        <div
+          className="w-10 h-10 border-3 rounded-full animate-spin"
+          style={{
+            borderColor: 'var(--color-border)',
+            borderTopColor: 'var(--color-accent)',
+          }}
+        />
+        <p
+          className="text-sm font-medium"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
+          در حال بارگذاری...
+        </p>
+      </div>
+    </div>
+  )
+}
 
 function App() {
   const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null)
@@ -30,7 +54,6 @@ function App() {
       const completed = await hasCompletedOnboarding()
       setShowOnboarding(!completed)
 
-      // اگه آنبوردینگ تکمیل شده → شروع چک نوتیفیکیشن
       if (completed) {
         startNotificationScheduler()
       }
@@ -78,28 +101,39 @@ function App() {
 
   // ─── آنبوردینگ ───
   if (showOnboarding) {
-    return <Onboarding onComplete={() => {
-      setShowOnboarding(false)
-      startNotificationScheduler()
-    }} />
+    return (
+      <ErrorBoundary>
+        <Suspense fallback={<PageLoader />}>
+          <Onboarding onComplete={() => {
+            setShowOnboarding(false)
+            startNotificationScheduler()
+          }} />
+        </Suspense>
+      </ErrorBoundary>
+    )
   }
 
   // ─── اپ اصلی ───
   return (
-    <BrowserRouter>
-      <OfflineNotice />
-      <InstallPrompt />
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Home />} />
-          <Route path="chat" element={<ChatPage />} />
-          <Route path="goals" element={<Goals />} />
-          <Route path="progress" element={<Progress />} />
-          <Route path="settings" element={<Settings />} />
-          <Route path="edit-profile" element={<EditProfile />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <OfflineNotice />
+        <InstallPrompt />
+
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Home />} />
+              <Route path="chat" element={<ChatPage />} />
+              <Route path="goals" element={<Goals />} />
+              <Route path="progress" element={<Progress />} />
+              <Route path="settings" element={<Settings />} />
+              <Route path="edit-profile" element={<EditProfile />} />
+            </Route>
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    </ErrorBoundary>
   )
 }
 

@@ -1,27 +1,32 @@
 {
   "name": "MODO - کوچ هوشمند",
   "short_name": "MODO",
-  "description": "ساختار، وضوح، رشد - کوچ شخصی هوشمند",
+  "description": "ساختار، وضوح، رشد — کوچ هوشمند شخصی",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0A0A0F",
+  "background_color": "#08080D",
   "theme_color": "#10B981",
-  "orientation": "portrait",
   "dir": "rtl",
   "lang": "fa",
+  "orientation": "portrait",
   "categories": ["lifestyle", "productivity", "health"],
   "icons": [
     {
-      "src": "/icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/icon.svg",
       "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "maskable"
+      "type": "image/svg+xml"
     }
   ]
 }
