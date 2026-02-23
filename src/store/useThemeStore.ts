@@ -1,55 +1,73 @@
 // src/store/useThemeStore.ts
 // ─────────────────────────────────────
-// این فایل مسئول مدیریت تم (تاریک/روشن) هست
-// از Zustand استفاده میکنیم - یه کتابخانه ساده برای نگهداری state
+// مدیریت تم (تاریک/روشن) + رنگ اکسنت
 // ─────────────────────────────────────
 
 import { create } from 'zustand'
 
-// تعریف تایپ: چه داده‌ها و چه عملیاتی داریم
+// ─── تایپ رنگ‌های موجود ───
+export type AccentColor = 'emerald' | 'blue' | 'purple' | 'rose' | 'amber'
+
 interface ThemeState {
-  isDark: boolean          // آیا تم تاریکه؟
-  toggleTheme: () => void  // تابع تغییر تم
+  isDark: boolean
+  accentColor: AccentColor
+  toggleTheme: () => void
+  setAccentColor: (color: AccentColor) => void
 }
 
-// ─── تابع کمکی: تم ذخیره‌شده رو بخون ───
+// ─── مقدار اولیه تم ───
 function getInitialTheme(): boolean {
-  // اول چک کن آیا قبلاً تمی ذخیره شده
   const saved = localStorage.getItem('modo-theme')
-  if (saved !== null) {
-    return saved === 'dark'
-  }
-  // اگه ذخیره نشده → پیش‌فرض: تاریک
-  return true
+  if (saved !== null) return saved === 'dark'
+  return true // پیش‌فرض: تاریک
 }
 
-// ─── تابع کمکی: تم رو به صفحه اعمال کن ───
+// ─── مقدار اولیه رنگ ───
+function getInitialAccent(): AccentColor {
+  const saved = localStorage.getItem('modo-accent') as AccentColor | null
+  if (saved && ['emerald', 'blue', 'purple', 'rose', 'amber'].includes(saved)) {
+    return saved
+  }
+  return 'emerald' // پیش‌فرض: زمردی
+}
+
+// ─── اعمال تم به صفحه ───
 function applyTheme(isDark: boolean): void {
-  // کلاس 'dark' رو به <html> اضافه یا حذف کن
   if (isDark) {
     document.documentElement.classList.add('dark')
   } else {
     document.documentElement.classList.remove('dark')
   }
-  // توی localStorage ذخیره کن (دفعه بعد یادش بمونه)
   localStorage.setItem('modo-theme', isDark ? 'dark' : 'light')
 }
 
-// ─── همین الان تم رو اعمال کن (وقتی فایل لود میشه) ───
+// ─── اعمال رنگ اکسنت ───
+function applyAccent(color: AccentColor): void {
+  document.documentElement.setAttribute('data-accent', color)
+  localStorage.setItem('modo-accent', color)
+}
+
+// ─── اعمال اولیه ───
 const initialIsDark = getInitialTheme()
+const initialAccent = getInitialAccent()
 applyTheme(initialIsDark)
+applyAccent(initialAccent)
 
-// ─── ساخت Store ───
+// ─── Store ───
 export const useThemeStore = create<ThemeState>((set) => ({
-  // مقدار اولیه
   isDark: initialIsDark,
+  accentColor: initialAccent,
 
-  // تابع تغییر تم
   toggleTheme: () => {
     set((state) => {
-      const newIsDark = !state.isDark  // برعکس کن
-      applyTheme(newIsDark)            // به صفحه اعمال کن
-      return { isDark: newIsDark }     // state رو آپدیت کن
+      const newIsDark = !state.isDark
+      applyTheme(newIsDark)
+      return { isDark: newIsDark }
     })
+  },
+
+  setAccentColor: (color: AccentColor) => {
+    applyAccent(color)
+    set({ accentColor: color })
   },
 }))

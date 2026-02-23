@@ -17,7 +17,7 @@ import Progress from './pages/Progress'
 import Settings from './pages/Settings'
 import EditProfile from './pages/EditProfile'
 
-// PWA کامپوننت‌ها
+// PWA
 import InstallPrompt from './components/InstallPrompt'
 import OfflineNotice from './components/OfflineNotice'
 
@@ -32,36 +32,64 @@ function App() {
     checkOnboarding()
   }, [])
 
-  // لودینگ
-   if (showOnboarding === null) {
+  // ─── Splash Screen ───
+  if (showOnboarding === null) {
     return (
       <div
-        className="min-h-screen flex flex-col items-center justify-center gap-6"
+        className="min-h-screen flex flex-col items-center justify-center gap-5"
         style={{ backgroundColor: 'var(--color-bg-primary)' }}
       >
+        {/* لوگو — بانس و درخشش */}
+        <div className="animate-bounce-in">
+          <div
+            className="w-20 h-20 rounded-3xl flex items-center justify-center modo-btn-primary animate-breathe"
+            style={{ fontSize: '2rem', fontWeight: 900 }}
+          >
+            M
+          </div>
+        </div>
+
+        {/* نام — فید این با تاخیر */}
         <div
-          className="w-16 h-16 rounded-2xl flex items-center justify-center modo-btn-primary animate-breathe"
-          style={{ fontSize: '1.5rem', fontWeight: 900 }}
+          className="animate-fade-in"
+          style={{ animationDelay: '0.3s' }}
         >
-          M
+          <div className="text-4xl font-black modo-gradient-text tracking-tight">
+            MODO
+          </div>
         </div>
 
-        <div className="text-3xl font-black modo-gradient-text">
-          MODO
-        </div>
-
+        {/* شعار — فید این با تاخیر بیشتر */}
         <div
-          className="w-8 h-8 border-3 rounded-full animate-spin"
-          style={{
-            borderColor: 'var(--color-border)',
-            borderTopColor: 'var(--color-accent)',
-          }}
-        />
+          className="animate-fade-in"
+          style={{ animationDelay: '0.6s' }}
+        >
+          <p
+            className="text-sm font-medium"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            ساختار، وضوح، رشد
+          </p>
+        </div>
+
+        {/* اسپینر — فید این آخر */}
+        <div
+          className="animate-fade-in"
+          style={{ animationDelay: '0.9s' }}
+        >
+          <div
+            className="w-6 h-6 border-2 rounded-full animate-spin"
+            style={{
+              borderColor: 'var(--color-border)',
+              borderTopColor: 'var(--color-accent)',
+            }}
+          />
+        </div>
       </div>
     )
   }
 
-  // آنبوردینگ
+  // ─── آنبوردینگ ───
   if (showOnboarding) {
     return (
       <Onboarding
@@ -70,13 +98,10 @@ function App() {
     )
   }
 
-  // اپ اصلی
+  // ─── اپ اصلی ───
   return (
     <BrowserRouter>
-      {/* PWA: نوار آفلاین */}
       <OfflineNotice />
-
-      {/* PWA: پیشنهاد نصب */}
       <InstallPrompt />
 
       <Routes>

@@ -10,7 +10,7 @@ interface DailyMessageProps {
   streak?: number
 }
 
-// ─── ساعت روز (اصلاح‌شده برای فرهنگ ایرانی) ───
+// ─── ساعت روز (اصلاح‌شده برای فرهنگ ایرانی) ───ّ
 function getTimeSlot(): 'morning' | 'afternoon' | 'evening' | 'night' {
   const hour = new Date().getHours()
   if (hour >= 5 && hour < 12) return 'morning'
