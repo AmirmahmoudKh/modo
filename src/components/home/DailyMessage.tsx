@@ -1,62 +1,185 @@
 // src/components/home/DailyMessage.tsx
+// ─────────────────────────────────────
+// پیام روزانه هوشمند MODO
+// بر اساس ساعت روز و Streak
+// بدون API call
+// ─────────────────────────────────────
 
-import { MessageCircle } from 'lucide-react'
-
-const DAILY_MESSAGES = [
-  'امروز یه فرصت جدیده. لازم نیست عالی باشی، فقط شروع کن.',
-  'قدم‌های کوچیک، نتیجه‌های بزرگ. امروز یه قدم بردار.',
-  'دیروز تموم شد. امروز مال توئه. چی ازش می‌خوای؟',
-  'بجای فکر کردن به همه‌چیز، فقط یه کار رو انجام بده.',
-  'انگیزه میاد و میره. سیستم می‌مونه. سیستمت رو بساز.',
-  'از خودت بپرس: نسخه بهتر من امروز چیکار میکنه؟',
-  'هر روز که اینجایی، داری ثابت میکنی برات مهمه.',
-  'نیازی نیست انگیزه داشته باشی. فقط شروع کن، انگیزه میاد.',
-  'مقایسه خودت با دیروزت کن، نه با بقیه.',
-  'تغییر سخته. ولی تو از سخت‌تر از اینا رد شدی.',
-  'بدن حرکت می‌خواد، ذهن نظم می‌خواد. بهشون بده.',
-  'الان بهترین زمان شروعه. نه فردا، نه دوشنبه. الان.',
-  'یه لیست کوچیک بنویس. سه تا کار. همین.',
-  'موفقیت عادته، نه اتفاق. عادتت رو امروز بساز.',
-]
-
-function getTodayMessage() {
-  const dayOfYear = Math.floor(
-    (Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) /
-    (1000 * 60 * 60 * 24)
-  )
-  return DAILY_MESSAGES[dayOfYear % DAILY_MESSAGES.length]
-}
+import { Lightbulb } from 'lucide-react'
 
 interface DailyMessageProps {
   userName: string
+  streak: number
 }
 
-export default function DailyMessage({ userName }: DailyMessageProps) {
-  const message = getTodayMessage()
+// ─── ساعت روز ───
+function getTimeSlot(): 'morning' | 'afternoon' | 'evening' | 'night' {
+  const hour = new Date().getHours()
+  if (hour >= 5 && hour < 12) return 'morning'
+  if (hour >= 12 && hour < 17) return 'afternoon'
+  if (hour >= 17 && hour < 21) return 'evening'
+  return 'night'
+}
+
+// ─── سلام بر اساس ساعت ───
+function getGreeting(name: string): string {
+  const slot = getTimeSlot()
+  const greetings = {
+    morning: `صبح بخیر ${name}`,
+    afternoon: `${name}، خسته نباشی`,
+    evening: `عصرت بخیر ${name}`,
+    night: `${name}، شبت آروم`,
+  }
+  return greetings[slot]
+}
+
+// ─── پیام‌ها ───
+function getMessage(name: string, streak: number): string {
+  const slot = getTimeSlot()
+  const dayOfMonth = new Date().getDate()
+
+  // پیام‌های ترکیبی: ساعت + streak
+  const messages: Record<string, Record<string, string[]>> = {
+    morning: {
+      zero: [
+        'امروز روز شروعه. یه کار کوچیک انتخاب کن و انجامش بده.',
+        'هر روز بزرگ با یه قدم کوچیک شروع میشه. امروز اون قدم رو بردار.',
+        'دیروز هرچی بود تموم شد. امروز فرصت جدیده.',
+      ],
+      low: [
+        `${streak} روزه داری میجنگی. ادامه بده، داره عادت میشه.`,
+        'داری مسیر رو پیدا میکنی. امروز هم یه قدم دیگه جلو برو.',
+        `${streak} روز متوالی. خوبه ولی هنوز اول راهی. ادامه بده.`,
+      ],
+      mid: [
+        `${streak} روزه فعالی. داری عادت میسازی. نذار زنجیره قطع بشه.`,
+        'ذهنت داره به نظم عادت میکنه. این خیلی ارزشمنده.',
+        `${streak} روز. دیگه این فقط یه تلاش نیست، داره بخشی از زندگیت میشه.`,
+      ],
+      high: [
+        `${streak} روز متوالی. افتخار میکنم بهت. ولی هنوز تمومش نکن.`,
+        'تو الان جزو اون درصد کمی هستی که واقعا عمل میکنه.',
+        `${streak} روز. کم نیست. ولی بهترین روزات هنوز جلوتره.`,
+      ],
+    },
+    afternoon: {
+      zero: [
+        'نصف روز گذشته. هنوز میتونی یه کار مفید انجام بدی.',
+        'بعدازظهر وقت خوبیه برای شروع. یه تسک از لیستت رو انجام بده.',
+        'ذهنت خسته‌ست؟ ۵ دقیقه پیاده‌روی کن بعد ادامه بده.',
+      ],
+      low: [
+        'تسک‌های امروز رو چک کن. چندتاشون مونده؟',
+        `${streak} روزه فعالی. بقیه تسک‌هات رو هم بزن.`,
+        'بعدازظهر وقت خوبیه برای تموم کردن کارای نصفه.',
+      ],
+      mid: [
+        'امروز تسک‌هات رو زدی؟ ادامه بده.',
+        `${streak} روز streak. نذار امروز قطع بشه.`,
+        'اگه خسته‌ای استراحت کن ولی ول نکن.',
+      ],
+      high: [
+        'تو خودت بهتر از من میدونی چیکار باید بکنی. فقط اجرا کن.',
+        `${streak} روز. سیستمت داره کار میکنه. فقط ادامه بده.`,
+        'به خودت ببال ولی متوقف نشو.',
+      ],
+    },
+    evening: {
+      zero: [
+        'هنوز وقت هست. یه کار کوچیک انجام بده و روزت رو نجات بده.',
+        'عصر وقت خوبیه برای فکر کردن. فردا رو برنامه‌ریزی کن.',
+        'اگه امروز هیچی نکردی اشکال نداره. فردا از نو شروع کن.',
+      ],
+      low: [
+        'لیست فردا رو بنویس. سه تا کار مهم. همین.',
+        `${streak} روز. فردا رو هم بهش اضافه کن.`,
+        'امشب زودتر بخواب. فردا انرژی بیشتری داری.',
+      ],
+      mid: [
+        'امروز خوب بود؟ فردا رو بهتر کن.',
+        `${streak} روز ادامه‌دار. خوبه. حالا برنامه فردا رو بریز.`,
+        'استراحت هم بخشی از سیستمه. ولی بدون ساعت خواب خراب نکن.',
+      ],
+      high: [
+        `${streak} روز. تو یه ماشین شدی. فقط سوختت رو تامین کن.`,
+        'فردا رو هم بچسبون به streak. ولی امشب خوب بخواب.',
+        'به خودت استراحت بده. فردا باز ادامه میدی.',
+      ],
+    },
+    night: {
+      zero: [
+        'فردا فرصت تازه‌ست. الان فقط بخواب.',
+        'الان مهم‌ترین کار خوابه. فردا شروع میکنیم.',
+        'شب وقت فکر کردن زیاده. ولی الان فقط بخواب.',
+      ],
+      low: [
+        'بخواب. فردا ادامه میدیم.',
+        'گوشی رو بذار کنار و بخواب. فردا روز مهمیه.',
+        `${streak} روز. بخواب تا فردا ${streak + 1} بشه.`,
+      ],
+      mid: [
+        'خوب کار کردی. حالا بخواب.',
+        'مغزت استراحت لازم داره. بخواب.',
+        `${streak} روز فعالیت. شب بخیر.`,
+      ],
+      high: [
+        `${streak} روز. افتخارآمیزه. شب بخیر.`,
+        'چراغ رو خاموش کن. فردا باز میجنگی.',
+        'بخواب. مغز خسته نمیتونه فردا خوب کار کنه.',
+      ],
+    },
+  }
+
+  // تعیین سطح streak
+  let streakLevel: string
+  if (streak === 0) streakLevel = 'zero'
+  else if (streak < 4) streakLevel = 'low'
+  else if (streak < 10) streakLevel = 'mid'
+  else streakLevel = 'high'
+
+  const pool = messages[slot]?.[streakLevel] || messages[slot]?.zero || ['ادامه بده.']
+  const index = dayOfMonth % pool.length
+
+  return pool[index]
+}
+
+export default function DailyMessage({ userName, streak }: DailyMessageProps) {
+  const greeting = getGreeting(userName)
+  const message = getMessage(userName, streak)
 
   return (
-    <div className="modo-card-accent animate-fade-in">
-      <div className="flex items-center gap-2 mb-3">
+    <div
+      className="modo-card"
+      style={{
+        borderRight: '3px solid var(--color-accent)',
+      }}
+    >
+      <div className="flex items-start gap-3">
         <div
-          className="w-7 h-7 rounded-lg flex items-center justify-center"
-          style={{ backgroundColor: 'var(--color-accent)', opacity: 0.9 }}
+          className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center mt-0.5"
+          style={{
+            backgroundColor: 'rgba(var(--accent-rgb, 99, 102, 241), 0.1)',
+            color: 'var(--color-accent)',
+          }}
         >
-          <MessageCircle size={14} color="white" />
+          <Lightbulb size={18} />
         </div>
-        <span
-          className="text-sm font-bold"
-          style={{ color: 'var(--color-accent)' }}
-        >
-          پیام MODO
-        </span>
-      </div>
 
-      <p
-        className="text-sm leading-7"
-        style={{ color: 'var(--color-text-primary)' }}
-      >
-        {userName} عزیز، {message}
-      </p>
+        <div className="flex-1">
+          <p
+            className="text-sm font-bold mb-1"
+            style={{ color: 'var(--color-text-primary)' }}
+          >
+            {greeting}
+          </p>
+          <p
+            className="text-sm leading-6"
+            style={{ color: 'var(--color-text-secondary)' }}
+          >
+            {message}
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

@@ -1,10 +1,10 @@
 // src/pages/ChatPage.tsx
 // ─────────────────────────────────────
-// صفحه چت با MODO - حالا با AI واقعی!
+// صفحه چت با MODO
 // ─────────────────────────────────────
 
 import { useState, useEffect, useRef } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Trash2, ArrowRight } from 'lucide-react'
 import ChatBubble from '../components/chat/ChatBubble'
 import ChatInput from '../components/chat/ChatInput'
 import TypingIndicator from '../components/chat/TypingIndicator'
@@ -15,46 +15,45 @@ import {
   getUserProfile,
   earnBadge,
   checkAndAwardBadges,
+  calculateStreak,
+  getTodayTaskStats,
+  getGoalsByStatus,
+  getCompletedGoalsCount,
 } from '../utils/dbHelpers'
 import { sendMessageToAI } from '../utils/api'
+import type { ChatContext } from '../utils/api'
 import { WELCOME_MESSAGE } from '../utils/mockResponses'
 import type { ChatMessage, UserProfile } from '../utils/db'
 
 export default function ChatPage() {
-  // ─── State ها ───
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isTyping, setIsTyping] = useState(false)
   const [loading, setLoading] = useState(true)
   const [userProfile, setUserProfile] = useState<UserProfile | undefined>()
   const [error, setError] = useState<string | null>(null)
 
-  // رفرنس‌ها
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const initialized = useRef(false)
 
-  // ─── اسکرول به پایین ───
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  // ─── لود تاریخچه چت + پروفایل ───
+  // ─── لود چت ───
   useEffect(() => {
     if (initialized.current) return
     initialized.current = true
 
     async function loadChat() {
       try {
-        // پروفایل رو بخون (برای شخصی‌سازی AI)
         const profile = await getUserProfile()
         setUserProfile(profile)
 
-        // تاریخچه چت
         const history = await getChatHistory()
 
         if (history.length === 0) {
-          // پیام خوش‌آمدگویی شخصی‌سازی شده
           const welcomeText = profile
-            ? `سلام ${profile.name}! 👋 من MODO هستم، کوچ شخصیت.\n\nاینجام که کمکت کنم به زندگیت نظم بدی، اهدافت رو مشخص کنی و هر روز یه قدم جلوتر بری.\n\nاز پروفایلت میبینم که ${profile.goals.length > 0 ? 'دنبال تغییر هستی' : 'تازه شروع کردی'}. عالیه!\n\nاز چی میخوای شروع کنیم؟ 🚀`
+            ? `سلام ${profile.name}! من MODO هستم، کوچ شخصیت.\n\nاینجام که کمکت کنم به زندگیت نظم بدی، اهدافت رو مشخص کنی و هر روز یه قدم جلوتر بری.\n\nاز پروفایلت میبینم که دنبال تغییر هستی. عالیه!\n\nاز چی میخوای شروع کنیم؟`
             : WELCOME_MESSAGE
 
           await saveChatMessage('assistant', welcomeText)
@@ -73,17 +72,40 @@ export default function ChatPage() {
     loadChat()
   }, [])
 
-  // ─── اسکرول وقتی پیام جدید میاد ───
   useEffect(() => {
     scrollToBottom()
   }, [messages, isTyping])
 
+  // ─── جمع‌آوری Context ───
+  async function gatherContext(): Promise<ChatContext> {
+    try {
+      const streak = await calculateStreak()
+      const taskStats = await getTodayTaskStats()
+      const activeGoals = await getGoalsByStatus('active')
+      const completedGoals = await getCompletedGoalsCount()
+
+      return {
+        streak,
+        todayTasksCompleted: taskStats.completed,
+        todayTasksTotal: taskStats.total,
+        activeGoalsCount: activeGoals.length,
+        completedGoalsCount: completedGoals,
+      }
+    } catch {
+      return {
+        streak: 0,
+        todayTasksCompleted: 0,
+        todayTasksTotal: 0,
+        activeGoalsCount: 0,
+        completedGoalsCount: 0,
+      }
+    }
+  }
+
   // ─── ارسال پیام ───
   const handleSendMessage = async (text: string) => {
-    // پاک کردن خطای قبلی
     setError(null)
 
-    // ۱. ذخیره و نمایش پیام کاربر
     await saveChatMessage('user', text)
     const userMessage: ChatMessage = {
       role: 'user',
@@ -92,17 +114,20 @@ export default function ChatPage() {
     }
     setMessages(prev => [...prev, userMessage])
 
-    // ۲. نشان "اولین گفتگو"
     await earnBadge('first_chat')
-
-    // ۳. نشون بده داره تایپ میکنه
     setIsTyping(true)
 
     try {
-      // ۴. ارسال به AI (واقعی یا ساختگی)
-      const response = await sendMessageToAI(text, messages, userProfile)
+      // جمع‌آوری context واقعی
+      const context = await gatherContext()
 
-      // ۵. ذخیره و نمایش پاسخ
+      const response = await sendMessageToAI(
+        text,
+        messages,
+        userProfile,
+        context
+      )
+
       await saveChatMessage('assistant', response)
       const assistantMessage: ChatMessage = {
         role: 'assistant',
@@ -112,8 +137,6 @@ export default function ChatPage() {
 
       setIsTyping(false)
       setMessages(prev => [...prev, assistantMessage])
-
-      // ۶. چک نشان‌ها
       await checkAndAwardBadges()
 
     } catch (err) {
@@ -121,8 +144,7 @@ export default function ChatPage() {
       const errorMessage = err instanceof Error ? err.message : 'مشکلی پیش اومد'
       setError(errorMessage)
 
-      // ذخیره پیام خطا بعنوان پاسخ MODO
-      const errorReply = `متأسفم، مشکلی پیش اومد 😔\n\n${errorMessage}\n\nدوباره تلاش کن.`
+      const errorReply = `متاسفم، مشکلی پیش اومد.\n\n${errorMessage}\n\nدوباره تلاش کن.`
       await saveChatMessage('assistant', errorReply)
       setMessages(prev => [...prev, {
         role: 'assistant',
@@ -141,7 +163,7 @@ export default function ChatPage() {
 
     const profile = await getUserProfile()
     const welcomeText = profile
-      ? `سلام ${profile.name}! 👋 چت پاک شد. از نو شروع کنیم!\n\nدرباره چی میخوای حرف بزنیم؟ 🚀`
+      ? `سلام ${profile.name}! چت پاک شد. از نو شروع کنیم!\n\nدرباره چی میخوای حرف بزنیم؟`
       : WELCOME_MESSAGE
 
     await saveChatMessage('assistant', welcomeText)
@@ -150,7 +172,6 @@ export default function ChatPage() {
     setError(null)
   }
 
-  // ─── لودینگ ───
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[80vh]">
@@ -165,11 +186,10 @@ export default function ChatPage() {
     )
   }
 
-  // ─── رندر صفحه ───
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)]">
 
-      {/* ─── هدر ─── */}
+      {/* هدر */}
       <div
         className="flex items-center justify-between px-6 py-4 border-b"
         style={{
@@ -198,7 +218,7 @@ export default function ChatPage() {
               className="text-[10px]"
               style={{ color: 'var(--color-success)' }}
             >
-              ● آنلاین
+              آنلاین
             </p>
           </div>
         </div>
@@ -213,7 +233,7 @@ export default function ChatPage() {
         </button>
       </div>
 
-      {/* ─── نوار خطا ─── */}
+      {/* نوار خطا */}
       {error && (
         <div
           className="mx-4 mt-2 px-4 py-2 rounded-xl text-sm"
@@ -223,11 +243,11 @@ export default function ChatPage() {
             border: '1px solid rgba(239, 68, 68, 0.2)',
           }}
         >
-          ⚠️ {error}
+          {error}
         </div>
       )}
 
-      {/* ─── لیست پیام‌ها ─── */}
+      {/* پیام‌ها */}
       <div
         className="flex-1 overflow-y-auto px-4 py-4"
         style={{ paddingBottom: '80px' }}
@@ -262,7 +282,7 @@ export default function ChatPage() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* ─── ورودی پیام ─── */}
+      {/* ورودی */}
       <ChatInput
         onSend={handleSendMessage}
         disabled={isTyping}

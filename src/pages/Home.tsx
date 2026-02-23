@@ -76,26 +76,21 @@ export default function Home() {
 
   return (
     <div className="p-6 space-y-4 pb-24">
-      {/* هدر */}
       <DashboardHeader userName={userName} />
 
-      {/* آمار سریع */}
       <QuickStats
         streak={streak}
         todayTasks={todayCompleted}
         activeGoals={activeGoalsCount}
       />
 
-      {/* پیام روزانه */}
-      <DailyMessage userName={userName} />
+      {/* پیام روزانه - حالا streak هم میگیره */}
+      <DailyMessage userName={userName} streak={streak} />
 
-      {/* تسک‌های امروز */}
       <DailyTasks onTaskChange={handleTaskChange} />
 
-      {/* هدف فعال */}
       <ActiveGoalCard goal={activeGoal} />
 
-      {/* دکمه چت */}
       <button
         onClick={() => navigate('/chat')}
         className="w-full rounded-2xl p-4 flex items-center justify-center gap-3 text-white font-bold text-lg modo-btn modo-btn-primary"
