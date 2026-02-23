@@ -14,7 +14,6 @@ import {
 } from '../utils/dbHelpers'
 import type { UserProfile, Goal } from '../utils/db'
 
-// کامپوننت‌ها
 import DashboardHeader from '../components/home/DashboardHeader'
 import QuickStats from '../components/home/QuickStats'
 import DailyMessage from '../components/home/DailyMessage'
@@ -24,33 +23,27 @@ import DailyTasks from '../components/home/DailyTasks'
 export default function Home() {
   const navigate = useNavigate()
 
-  // ─── State ها ───
   const [profile, setProfile] = useState<UserProfile | undefined>()
   const [streak, setStreak] = useState(0)
   const [activeGoal, setActiveGoal] = useState<Goal | null>(null)
   const [activeGoalsCount, setActiveGoalsCount] = useState(0)
+  const [todayCompleted, setTodayCompleted] = useState(0)
   const [loading, setLoading] = useState(true)
 
-  // ─── لود داده‌ها ───
   useEffect(() => {
     async function loadData() {
       try {
-        // پروفایل
         const userProfile = await getUserProfile()
         setProfile(userProfile)
 
-        // فعالیت امروز
         await recordDailyActivity()
 
-        // Streak
         const currentStreak = await calculateStreak()
         setStreak(currentStreak)
 
-        // اهداف فعال
         const goals = await getGoalsByStatus('active')
         setActiveGoalsCount(goals.length)
         setActiveGoal(goals.length > 0 ? goals[0] : null)
-
       } catch (error) {
         console.error('خطا در بارگذاری:', error)
       } finally {
@@ -61,7 +54,10 @@ export default function Home() {
     loadData()
   }, [])
 
-  // ─── لودینگ ───
+  const handleTaskChange = (completed: number, _total: number) => {
+    setTodayCompleted(completed)
+  }
+
   if (loading) {
     return (
       <div className="p-6 flex items-center justify-center min-h-[80vh]">
@@ -78,28 +74,26 @@ export default function Home() {
 
   const userName = profile?.name || 'دوست'
 
-  // ─── صفحه اصلی ───
   return (
-    <div className="p-6 space-y-4">
-
+    <div className="p-6 space-y-4 pb-24">
       {/* هدر */}
       <DashboardHeader userName={userName} />
 
       {/* آمار سریع */}
       <QuickStats
         streak={streak}
-        todayTasks={0}
+        todayTasks={todayCompleted}
         activeGoals={activeGoalsCount}
       />
 
       {/* پیام روزانه */}
       <DailyMessage userName={userName} />
 
+      {/* تسک‌های امروز */}
+      <DailyTasks onTaskChange={handleTaskChange} />
+
       {/* هدف فعال */}
       <ActiveGoalCard goal={activeGoal} />
-
-      {/* تسک‌های امروز */}
-      <DailyTasks />
 
       {/* دکمه چت */}
       <button
@@ -109,7 +103,6 @@ export default function Home() {
         <MessageCircle size={22} />
         <span>شروع چت با MODO</span>
       </button>
-
     </div>
   )
 }
