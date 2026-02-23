@@ -1,4 +1,7 @@
 // src/components/home/DashboardHeader.tsx
+// ─────────────────────────────────────
+// هدر داشبورد — بدون ایموجی
+// ─────────────────────────────────────
 
 interface DashboardHeaderProps {
   userName: string
@@ -17,23 +20,19 @@ export default function DashboardHeader({ userName }: DashboardHeaderProps) {
   const greeting = getGreeting()
 
   return (
-    <div className="flex items-center justify-between mb-6">
+    <div className="flex items-center justify-between mb-6 animate-fade-in">
       <div>
         <h1 className="text-2xl font-bold mb-1">
           <span style={{ color: 'var(--color-text-primary)' }}>{greeting}، </span>
           <span className="modo-gradient-text">{userName}</span>
         </h1>
-        <p
-          className="text-sm"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
+        <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
           امروز چه کاری می‌خوای انجام بدی؟
         </p>
       </div>
 
-      {/* لوگو */}
       <div
-        className="w-11 h-11 rounded-xl flex items-center justify-center font-black text-sm modo-btn-primary"
+        className="w-11 h-11 rounded-xl flex items-center justify-center font-black text-sm modo-btn-primary animate-breathe"
       >
         M
       </div>

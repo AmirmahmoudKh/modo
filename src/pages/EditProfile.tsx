@@ -1,7 +1,21 @@
 // src/pages/EditProfile.tsx
+// ─────────────────────────────────────
+// ویرایش پروفایل — آیکون Lucide + پولیش
+// ─────────────────────────────────────
 
 import { useState, useEffect } from 'react'
-import { ArrowRight, Save } from 'lucide-react'
+import {
+  ArrowRight,
+  Save,
+  User,
+  Calendar,
+  Briefcase,
+  Target,
+  Moon,
+  Brain,
+  Smartphone,
+  CheckCircle2,
+} from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { getUserProfile } from '../utils/dbHelpers'
 import { db } from '../utils/db'
@@ -57,7 +71,6 @@ export default function EditProfile() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
-  // فرم
   const [name, setName] = useState('')
   const [age, setAge] = useState('')
   const [status, setStatus] = useState('')
@@ -86,9 +99,7 @@ export default function EditProfile() {
 
   const toggleGoal = (value: string) => {
     setGoals(prev =>
-      prev.includes(value)
-        ? prev.filter(g => g !== value)
-        : [...prev, value]
+      prev.includes(value) ? prev.filter(g => g !== value) : [...prev, value]
     )
   }
 
@@ -123,11 +134,42 @@ export default function EditProfile() {
     )
   }
 
+  // ─── تابع کمکی: گرید دکمه‌ها ───
+  function renderChips(
+    options: { value: string; label: string }[],
+    selected: string,
+    onSelect: (v: string) => void,
+    cols: number = 3
+  ) {
+    return (
+      <div className={`grid gap-2`} style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+        {options.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => onSelect(opt.value)}
+            className="p-3 rounded-xl text-sm font-medium transition-all active:scale-95"
+            style={{
+              backgroundColor: selected === opt.value ? 'var(--color-accent-light)' : 'var(--color-bg-secondary)',
+              color: selected === opt.value ? 'var(--color-accent)' : 'var(--color-text-secondary)',
+              border: `1px solid ${selected === opt.value ? 'var(--color-accent)' : 'var(--color-border)'}`,
+            }}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
   return (
     <div className="p-6 pb-24">
       {/* هدر */}
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => navigate('/settings')} className="p-2 rounded-xl transition-all active:scale-90" style={{ color: 'var(--color-text-secondary)' }}>
+        <button
+          onClick={() => navigate('/settings')}
+          className="p-2 rounded-xl transition-all active:scale-90"
+          style={{ color: 'var(--color-text-secondary)' }}
+        >
           <ArrowRight size={24} />
         </button>
         <h1 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>
@@ -137,37 +179,72 @@ export default function EditProfile() {
 
       <div className="space-y-5">
         {/* اسم */}
-        <div>
-          <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>اسم</label>
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="w-full p-4 rounded-2xl outline-none" style={{ backgroundColor: 'var(--color-bg-secondary)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }} />
+        <div className="modo-card">
+          <div className="flex items-center gap-2 mb-3">
+            <User size={16} style={{ color: 'var(--color-accent)' }} />
+            <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>اسم</label>
+          </div>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full p-4 rounded-2xl outline-none"
+            style={{
+              backgroundColor: 'var(--color-bg-tertiary)',
+              color: 'var(--color-text-primary)',
+              border: '1px solid var(--color-border)',
+            }}
+          />
         </div>
 
         {/* سن */}
-        <div>
-          <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>سن</label>
-          <input type="number" value={age} onChange={(e) => setAge(e.target.value)} className="w-full p-4 rounded-2xl outline-none" style={{ backgroundColor: 'var(--color-bg-secondary)', color: 'var(--color-text-primary)', border: '1px solid var(--color-border)' }} />
+        <div className="modo-card">
+          <div className="flex items-center gap-2 mb-3">
+            <Calendar size={16} style={{ color: 'var(--color-accent)' }} />
+            <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>سن</label>
+          </div>
+          <input
+            type="number"
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+            className="w-full p-4 rounded-2xl outline-none"
+            style={{
+              backgroundColor: 'var(--color-bg-tertiary)',
+              color: 'var(--color-text-primary)',
+              border: '1px solid var(--color-border)',
+            }}
+          />
         </div>
 
         {/* وضعیت */}
-        <div>
-          <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>وضعیت</label>
-          <div className="grid grid-cols-3 gap-2">
-            {STATUS_OPTIONS.map((opt) => (
-              <button key={opt.value} onClick={() => setStatus(opt.value)} className="p-3 rounded-xl text-sm font-medium transition-all active:scale-95" style={{ backgroundColor: status === opt.value ? 'var(--color-accent-light)' : 'var(--color-bg-secondary)', color: status === opt.value ? 'var(--color-accent)' : 'var(--color-text-secondary)', border: `1px solid ${status === opt.value ? 'var(--color-accent)' : 'var(--color-border)'}` }}>
-                {opt.label}
-              </button>
-            ))}
+        <div className="modo-card">
+          <div className="flex items-center gap-2 mb-3">
+            <Briefcase size={16} style={{ color: 'var(--color-accent)' }} />
+            <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>وضعیت</label>
           </div>
+          {renderChips(STATUS_OPTIONS, status, setStatus, 3)}
         </div>
 
         {/* اهداف */}
-        <div>
-          <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>اهداف</label>
+        <div className="modo-card">
+          <div className="flex items-center gap-2 mb-3">
+            <Target size={16} style={{ color: 'var(--color-accent)' }} />
+            <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>اهداف</label>
+          </div>
           <div className="grid grid-cols-2 gap-2">
             {GOAL_OPTIONS.map((opt) => {
               const isSelected = goals.includes(opt.value)
               return (
-                <button key={opt.value} onClick={() => toggleGoal(opt.value)} className="p-3 rounded-xl text-sm font-medium transition-all active:scale-95 text-right" style={{ backgroundColor: isSelected ? 'var(--color-accent-light)' : 'var(--color-bg-secondary)', color: isSelected ? 'var(--color-accent)' : 'var(--color-text-secondary)', border: `1px solid ${isSelected ? 'var(--color-accent)' : 'var(--color-border)'}` }}>
+                <button
+                  key={opt.value}
+                  onClick={() => toggleGoal(opt.value)}
+                  className="p-3 rounded-xl text-sm font-medium transition-all active:scale-95 text-right"
+                  style={{
+                    backgroundColor: isSelected ? 'var(--color-accent-light)' : 'var(--color-bg-secondary)',
+                    color: isSelected ? 'var(--color-accent)' : 'var(--color-text-secondary)',
+                    border: `1px solid ${isSelected ? 'var(--color-accent)' : 'var(--color-border)'}`,
+                  }}
+                >
                   {opt.label}
                 </button>
               )
@@ -176,39 +253,30 @@ export default function EditProfile() {
         </div>
 
         {/* ساعت خواب */}
-        <div>
-          <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>ساعت خواب</label>
-          <div className="grid grid-cols-3 gap-2">
-            {SLEEP_OPTIONS.map((opt) => (
-              <button key={opt.value} onClick={() => setSleepTime(opt.value)} className="p-3 rounded-xl text-xs font-medium transition-all active:scale-95" style={{ backgroundColor: sleepTime === opt.value ? 'var(--color-accent-light)' : 'var(--color-bg-secondary)', color: sleepTime === opt.value ? 'var(--color-accent)' : 'var(--color-text-secondary)', border: `1px solid ${sleepTime === opt.value ? 'var(--color-accent)' : 'var(--color-border)'}` }}>
-                {opt.label}
-              </button>
-            ))}
+        <div className="modo-card">
+          <div className="flex items-center gap-2 mb-3">
+            <Moon size={16} style={{ color: 'var(--color-accent)' }} />
+            <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>ساعت خواب</label>
           </div>
+          {renderChips(SLEEP_OPTIONS, sleepTime, setSleepTime, 3)}
         </div>
 
         {/* تمرکز */}
-        <div>
-          <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>سطح تمرکز</label>
-          <div className="grid grid-cols-4 gap-2">
-            {FOCUS_OPTIONS.map((opt) => (
-              <button key={opt.value} onClick={() => setFocusLevel(opt.value)} className="p-3 rounded-xl text-xs font-medium transition-all active:scale-95" style={{ backgroundColor: focusLevel === opt.value ? 'var(--color-accent-light)' : 'var(--color-bg-secondary)', color: focusLevel === opt.value ? 'var(--color-accent)' : 'var(--color-text-secondary)', border: `1px solid ${focusLevel === opt.value ? 'var(--color-accent)' : 'var(--color-border)'}` }}>
-                {opt.label}
-              </button>
-            ))}
+        <div className="modo-card">
+          <div className="flex items-center gap-2 mb-3">
+            <Brain size={16} style={{ color: 'var(--color-accent)' }} />
+            <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>سطح تمرکز</label>
           </div>
+          {renderChips(FOCUS_OPTIONS, focusLevel, setFocusLevel, 4)}
         </div>
 
         {/* اسکرین تایم */}
-        <div>
-          <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>اسکرین تایم روزانه</label>
-          <div className="grid grid-cols-3 gap-2">
-            {SCREEN_OPTIONS.map((opt) => (
-              <button key={opt.value} onClick={() => setScreenTime(opt.value)} className="p-3 rounded-xl text-xs font-medium transition-all active:scale-95" style={{ backgroundColor: screenTime === opt.value ? 'var(--color-accent-light)' : 'var(--color-bg-secondary)', color: screenTime === opt.value ? 'var(--color-accent)' : 'var(--color-text-secondary)', border: `1px solid ${screenTime === opt.value ? 'var(--color-accent)' : 'var(--color-border)'}` }}>
-                {opt.label}
-              </button>
-            ))}
+        <div className="modo-card">
+          <div className="flex items-center gap-2 mb-3">
+            <Smartphone size={16} style={{ color: 'var(--color-accent)' }} />
+            <label className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>اسکرین تایم روزانه</label>
           </div>
+          {renderChips(SCREEN_OPTIONS, screenTime, setScreenTime, 3)}
         </div>
       </div>
 
@@ -220,14 +288,11 @@ export default function EditProfile() {
         style={{ opacity: saving ? 0.7 : 1 }}
       >
         {saved ? (
-          <span>ذخیره شد ✓</span>
+          <><CheckCircle2 size={20} /><span>ذخیره شد</span></>
         ) : saving ? (
           <span>در حال ذخیره...</span>
         ) : (
-          <>
-            <Save size={20} />
-            <span>ذخیره تغییرات</span>
-          </>
+          <><Save size={20} /><span>ذخیره تغییرات</span></>
         )}
       </button>
     </div>

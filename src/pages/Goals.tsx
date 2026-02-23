@@ -1,4 +1,7 @@
 // src/pages/Goals.tsx
+// ─────────────────────────────────────
+// صفحه اهداف — FAB هم‌رنگ تم
+// ─────────────────────────────────────
 
 import { useState, useEffect } from 'react'
 import { Plus, Zap, CheckCircle2, Archive as ArchiveIcon, Target } from 'lucide-react'
@@ -19,9 +22,9 @@ import type { Goal } from '../utils/db'
 type FilterType = 'active' | 'completed' | 'archived'
 
 const FILTERS: { value: FilterType; label: string; IconComp: typeof Zap }[] = [
-  { value: 'active',    label: 'فعال',       IconComp: Zap },
-  { value: 'completed', label: 'تکمیل‌شده',  IconComp: CheckCircle2 },
-  { value: 'archived',  label: 'آرشیو',      IconComp: ArchiveIcon },
+  { value: 'active',    label: 'فعال',      IconComp: Zap },
+  { value: 'completed', label: 'تکمیل‌شده', IconComp: CheckCircle2 },
+  { value: 'archived',  label: 'آرشیو',     IconComp: ArchiveIcon },
 ]
 
 export default function Goals() {
@@ -41,12 +44,9 @@ export default function Goals() {
     }
   }
 
-  useEffect(() => {
-    loadGoals()
-  }, [])
+  useEffect(() => { loadGoals() }, [])
 
   const filteredGoals = goals.filter(g => g.status === filter)
-
   const counts = {
     active: goals.filter(g => g.status === 'active').length,
     completed: goals.filter(g => g.status === 'completed').length,
@@ -60,37 +60,15 @@ export default function Goals() {
     setShowForm(false)
   }
 
-  const handleComplete = async (id: number) => {
-    await completeGoal(id)
-    await checkAndAwardBadges()
-    await loadGoals()
-  }
-
-  const handleArchive = async (id: number) => {
-    await archiveGoal(id)
-    await loadGoals()
-  }
-
-  const handleReactivate = async (id: number) => {
-    await updateGoal(id, { status: 'active', completedAt: undefined })
-    await loadGoals()
-  }
-
-  const handleDelete = async (id: number) => {
-    await deleteGoal(id)
-    await loadGoals()
-  }
+  const handleComplete = async (id: number) => { await completeGoal(id); await checkAndAwardBadges(); await loadGoals() }
+  const handleArchive = async (id: number) => { await archiveGoal(id); await loadGoals() }
+  const handleReactivate = async (id: number) => { await updateGoal(id, { status: 'active', completedAt: undefined }); await loadGoals() }
+  const handleDelete = async (id: number) => { await deleteGoal(id); await loadGoals() }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[80vh]">
-        <div
-          className="w-8 h-8 border-4 rounded-full animate-spin"
-          style={{
-            borderColor: 'var(--color-border)',
-            borderTopColor: 'var(--color-accent)',
-          }}
-        />
+        <div className="w-8 h-8 border-4 rounded-full animate-spin" style={{ borderColor: 'var(--color-border)', borderTopColor: 'var(--color-accent)' }} />
       </div>
     )
   }
@@ -101,19 +79,9 @@ export default function Goals() {
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Target size={24} style={{ color: 'var(--color-accent)' }} />
-          <h1
-            className="text-2xl font-bold"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            اهداف من
-          </h1>
+          <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>اهداف من</h1>
         </div>
-        <span
-          className="text-sm"
-          style={{ color: 'var(--color-text-secondary)' }}
-        >
-          {goals.length} هدف
-        </span>
+        <span className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>{goals.length} هدف</span>
       </div>
 
       {/* فیلترها */}
@@ -126,27 +94,14 @@ export default function Goals() {
               onClick={() => setFilter(f.value)}
               className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-medium transition-all active:scale-95"
               style={{
-                backgroundColor: filter === f.value
-                  ? 'var(--color-accent)'
-                  : 'var(--color-bg-secondary)',
-                color: filter === f.value
-                  ? '#FFFFFF'
-                  : 'var(--color-text-secondary)',
-                border: `1px solid ${filter === f.value
-                  ? 'var(--color-accent)'
-                  : 'var(--color-border)'}`,
+                backgroundColor: filter === f.value ? 'var(--color-accent)' : 'var(--color-bg-secondary)',
+                color: filter === f.value ? '#FFFFFF' : 'var(--color-text-secondary)',
+                border: `1px solid ${filter === f.value ? 'var(--color-accent)' : 'var(--color-border)'}`,
               }}
             >
               <Icon size={14} />
               <span>{f.label}</span>
-              <span
-                className="px-1.5 py-0.5 rounded-lg text-[10px]"
-                style={{
-                  backgroundColor: filter === f.value
-                    ? 'rgba(255,255,255,0.2)'
-                    : 'var(--color-bg-tertiary)',
-                }}
-              >
+              <span className="px-1.5 py-0.5 rounded-lg text-[10px]" style={{ backgroundColor: filter === f.value ? 'rgba(255,255,255,0.2)' : 'var(--color-bg-tertiary)' }}>
                 {counts[f.value]}
               </span>
             </button>
@@ -154,90 +109,43 @@ export default function Goals() {
         })}
       </div>
 
-      {/* لیست اهداف */}
+      {/* لیست */}
       {filteredGoals.length > 0 ? (
         <div className="space-y-3">
           {filteredGoals.map((goal) => (
-            <GoalCard
-              key={goal.id}
-              goal={goal}
-              onComplete={handleComplete}
-              onArchive={handleArchive}
-              onReactivate={handleReactivate}
-              onDelete={handleDelete}
-            />
+            <GoalCard key={goal.id} goal={goal} onComplete={handleComplete} onArchive={handleArchive} onReactivate={handleReactivate} onDelete={handleDelete} />
           ))}
         </div>
       ) : (
-        <div
-          className="rounded-2xl p-8 text-center mt-8"
-          style={{
-            backgroundColor: 'var(--color-bg-secondary)',
-            border: '2px dashed var(--color-border)',
-          }}
-        >
+        <div className="rounded-2xl p-8 text-center mt-8" style={{ backgroundColor: 'var(--color-bg-secondary)', border: '2px dashed var(--color-border)' }}>
           {filter === 'active' && <Zap size={40} className="mx-auto mb-3" style={{ color: 'var(--color-accent)' }} />}
-          {filter === 'completed' && <CheckCircle2 size={40} className="mx-auto mb-3" style={{ color: 'var(--color-success)' }} />}
+          {filter === 'completed' && <CheckCircle2 size={40} className="mx-auto mb-3" style={{ color: 'var(--color-accent)' }} />}
           {filter === 'archived' && <ArchiveIcon size={40} className="mx-auto mb-3" style={{ color: 'var(--color-text-secondary)' }} />}
-
-          <p
-            className="font-medium mb-1"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            {filter === 'active'
-              ? 'هنوز هدف فعالی نداری'
-              : filter === 'completed'
-                ? 'هنوز هدفی تکمیل نشده'
-                : 'آرشیو خالیه'
-            }
+          <p className="font-medium mb-1" style={{ color: 'var(--color-text-primary)' }}>
+            {filter === 'active' ? 'هنوز هدف فعالی نداری' : filter === 'completed' ? 'هنوز هدفی تکمیل نشده' : 'آرشیو خالیه'}
           </p>
-          <p
-            className="text-sm"
-            style={{ color: 'var(--color-text-secondary)' }}
-          >
-            {filter === 'active'
-              ? 'با یه هدف کوچیک شروع کن!'
-              : filter === 'completed'
-                ? 'اهداف فعالت رو تکمیل کن'
-                : 'اهدافی که فعلاً بهشون نمی‌رسی رو آرشیو کن'
-            }
+          <p className="text-sm" style={{ color: 'var(--color-text-secondary)' }}>
+            {filter === 'active' ? 'با یه هدف کوچیک شروع کن!' : filter === 'completed' ? 'اهداف فعالت رو تکمیل کن' : 'اهدافی که فعلاً بهشون نمی‌رسی رو آرشیو کن'}
           </p>
-
           {filter === 'active' && (
-            <button
-              onClick={() => setShowForm(true)}
-              className="mt-4 px-6 py-3 rounded-xl font-medium transition-all active:scale-95"
-              style={{
-                backgroundColor: 'var(--color-accent)',
-                color: '#FFFFFF',
-              }}
-            >
-              + اولین هدفت رو بساز
+            <button onClick={() => setShowForm(true)} className="mt-4 px-6 py-3 rounded-xl font-medium transition-all active:scale-95 flex items-center gap-2 mx-auto" style={{ backgroundColor: 'var(--color-accent)', color: '#FFFFFF' }}>
+              <Plus size={18} />
+              اولین هدفت رو بساز
             </button>
           )}
         </div>
       )}
 
-      {/* دکمه شناور */}
+      {/* FAB */}
       <button
         onClick={() => setShowForm(true)}
-        className="fixed left-6 bottom-24 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-90 hover:scale-110"
-        style={{
-          backgroundColor: 'var(--color-accent)',
-          color: '#FFFFFF',
-          boxShadow: '0 4px 20px rgba(108, 99, 255, 0.4)',
-        }}
+        className="fixed left-6 bottom-24 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all active:scale-90 hover:scale-110 modo-btn-primary"
+        style={{ boxShadow: '0 4px 20px var(--color-shadow-accent)' }}
       >
         <Plus size={28} strokeWidth={2.5} />
       </button>
 
-      {/* فرم */}
-      {showForm && (
-        <GoalForm
-          onSubmit={handleCreate}
-          onClose={() => setShowForm(false)}
-        />
-      )}
+      {showForm && <GoalForm onSubmit={handleCreate} onClose={() => setShowForm(false)} />}
     </div>
   )
 }

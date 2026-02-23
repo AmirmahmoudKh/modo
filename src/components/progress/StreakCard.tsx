@@ -1,4 +1,7 @@
 // src/components/progress/StreakCard.tsx
+// ─────────────────────────────────────
+// کارت Streak — هم‌رنگ تم
+// ─────────────────────────────────────
 
 import { Flame, Moon } from 'lucide-react'
 
@@ -17,37 +20,37 @@ function getStreakMessage(streak: number): string {
   return 'افسانه‌ای! هیچ‌کس نمیتونه جلوتو بگیره.'
 }
 
-function getStreakColor(streak: number): string {
-  if (streak === 0) return 'var(--color-text-secondary)'
-  if (streak < 3) return 'var(--color-warning)'
-  if (streak < 7) return '#F97316'
-  if (streak < 14) return 'var(--color-accent)'
-  return 'var(--color-success)'
-}
-
 export default function StreakCard({ streak }: StreakCardProps) {
   const message = getStreakMessage(streak)
-  const color = getStreakColor(streak)
+  const hasStreak = streak > 0
 
   return (
     <div
       className="modo-card text-center animate-slide-up"
       style={{
-        boxShadow: streak > 0 ? `0 4px 20px ${color}20` : undefined,
+        boxShadow: hasStreak ? '0 4px 20px var(--color-shadow-accent)' : undefined,
+        border: hasStreak ? '1px solid var(--color-accent)' : '1px solid var(--color-border)',
       }}
     >
       <div
         className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3"
-        style={{ backgroundColor: `${color}15` }}
+        style={{
+          backgroundColor: 'var(--color-accent-glow)',
+        }}
       >
-        {streak === 0 ? (
-          <Moon size={32} style={{ color }} />
+        {hasStreak ? (
+          <Flame size={32} style={{ color: 'var(--color-accent)' }} />
         ) : (
-          <Flame size={32} style={{ color }} />
+          <Moon size={32} style={{ color: 'var(--color-text-secondary)' }} />
         )}
       </div>
 
-      <p className="text-4xl font-black mb-1" style={{ color }}>{streak}</p>
+      <p
+        className="text-4xl font-black mb-1"
+        style={{ color: hasStreak ? 'var(--color-accent)' : 'var(--color-text-secondary)' }}
+      >
+        {streak}
+      </p>
       <p className="text-sm font-medium mb-3" style={{ color: 'var(--color-text-secondary)' }}>
         روز متوالی
       </p>

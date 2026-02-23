@@ -1,4 +1,7 @@
 // src/components/progress/StatsOverview.tsx
+// ─────────────────────────────────────
+// آمار کلی — هم‌رنگ تم
+// ─────────────────────────────────────
 
 import { Calendar, Target, CheckCircle2, MessageCircle } from 'lucide-react'
 
@@ -14,25 +17,27 @@ export default function StatsOverview({
 }: StatsOverviewProps) {
   const stats = [
     { icon: Calendar, value: totalActiveDays, label: 'روز فعال', color: 'var(--color-accent)' },
-    { icon: Target, value: totalGoals, label: 'کل اهداف', color: '#F97316' },
-    { icon: CheckCircle2, value: completedGoals, label: 'تکمیل‌شده', color: 'var(--color-success)' },
-    { icon: MessageCircle, value: totalChats, label: 'پیام چت', color: 'var(--color-warning)' },
+    { icon: Target, value: totalGoals, label: 'کل اهداف', color: 'var(--color-accent)' },
+    { icon: CheckCircle2, value: completedGoals, label: 'تکمیل‌شده', color: 'var(--color-accent)' },
+    { icon: MessageCircle, value: totalChats, label: 'پیام چت', color: 'var(--color-accent)' },
   ]
 
   return (
     <div className="grid grid-cols-4 gap-2">
-      {stats.map((stat) => {
+      {stats.map((stat, index) => {
         const Icon = stat.icon
         return (
           <div
             key={stat.label}
-            className="rounded-2xl p-3 text-center"
-            style={{
-              backgroundColor: 'var(--color-bg-secondary)',
-              border: '1px solid var(--color-border)',
-            }}
+            className="modo-card text-center p-3 animate-fade-in"
+            style={{ animationDelay: `${index * 80}ms` }}
           >
-            <Icon size={20} style={{ color: stat.color }} className="mx-auto mb-1" />
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1"
+              style={{ backgroundColor: 'var(--color-accent-glow)' }}
+            >
+              <Icon size={16} style={{ color: stat.color }} />
+            </div>
             <p className="text-lg font-bold" style={{ color: 'var(--color-text-primary)' }}>
               {stat.value}
             </p>

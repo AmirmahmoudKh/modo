@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { MessageCircle } from 'lucide-react'
+import { MessageCircle, ArrowLeft } from 'lucide-react'
 import {
   getUserProfile,
   calculateStreak,
@@ -35,12 +35,9 @@ export default function Home() {
       try {
         const userProfile = await getUserProfile()
         setProfile(userProfile)
-
         await recordDailyActivity()
-
         const currentStreak = await calculateStreak()
         setStreak(currentStreak)
-
         const goals = await getGoalsByStatus('active')
         setActiveGoalsCount(goals.length)
         setActiveGoal(goals.length > 0 ? goals[0] : null)
@@ -50,7 +47,6 @@ export default function Home() {
         setLoading(false)
       }
     }
-
     loadData()
   }, [])
 
@@ -63,10 +59,7 @@ export default function Home() {
       <div className="p-6 flex items-center justify-center min-h-[80vh]">
         <div
           className="w-8 h-8 border-4 rounded-full animate-spin"
-          style={{
-            borderColor: 'var(--color-border)',
-            borderTopColor: 'var(--color-accent)',
-          }}
+          style={{ borderColor: 'var(--color-border)', borderTopColor: 'var(--color-accent)' }}
         />
       </div>
     )
@@ -77,25 +70,19 @@ export default function Home() {
   return (
     <div className="p-6 space-y-4 pb-24">
       <DashboardHeader userName={userName} />
-
-      <QuickStats
-        streak={streak}
-        todayTasks={todayCompleted}
-        activeGoals={activeGoalsCount}
-      />
-
+      <QuickStats streak={streak} todayTasks={todayCompleted} activeGoals={activeGoalsCount} />
       <DailyMessage userName={userName} streak={streak} />
-
       <DailyTasks onTaskChange={handleTaskChange} />
-
       <ActiveGoalCard goal={activeGoal} />
 
+      {/* دکمه چت */}
       <button
         onClick={() => navigate('/chat')}
         className="w-full rounded-2xl p-4 flex items-center justify-center gap-3 text-white font-bold text-lg modo-btn modo-btn-primary"
       >
         <MessageCircle size={22} />
         <span>شروع چت با MODO</span>
+        <ArrowLeft size={18} />
       </button>
     </div>
   )
