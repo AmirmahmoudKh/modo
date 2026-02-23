@@ -1,11 +1,12 @@
 // src/components/home/TaskItem.tsx
 // ─────────────────────────────────────
-// کامپوننت تسک - آیکون Lucide + سوایپ
+// تسک — صدای تیک + سوایپ
 // ─────────────────────────────────────
 
 import { useState, useRef } from 'react'
 import { Check, Trash2 } from 'lucide-react'
 import { TaskIcon } from '../ui/Icons'
+import { playTaskComplete } from '../../utils/sounds'
 import type { Task } from '../../utils/db'
 
 interface TaskItemProps {
@@ -67,23 +68,24 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
 
   const handleClick = () => {
     if (hasMoved.current) return
+
+    // صدای تیک فقط وقتی تکمیل میشه
+    if (!task.completed) {
+      playTaskComplete()
+    }
+
     onToggle(task.id!)
   }
 
   return (
     <div className="relative overflow-hidden rounded-2xl mb-3">
-      {/* پس‌زمینه Delete */}
-      <div
-        className="absolute inset-0 flex items-center rounded-2xl px-5"
-        style={{ backgroundColor: 'var(--color-danger)' }}
-      >
+      <div className="absolute inset-0 flex items-center rounded-2xl px-5" style={{ backgroundColor: 'var(--color-danger)' }}>
         <div className="flex items-center gap-2 text-white">
           <Trash2 size={18} />
           <span className="text-sm font-medium">حذف</span>
         </div>
       </div>
 
-      {/* محتوای تسک */}
       <div
         className="relative rounded-2xl p-4 flex items-center gap-3 cursor-pointer"
         style={{
@@ -97,7 +99,6 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
         onTouchEnd={handleTouchEnd}
         onClick={handleClick}
       >
-        {/* تیک */}
         <div
           className="flex-shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all duration-300"
           style={{
@@ -108,38 +109,15 @@ export default function TaskItem({ task, onToggle, onDelete }: TaskItemProps) {
           {task.completed && <Check size={14} color="#fff" strokeWidth={3} />}
         </div>
 
-        {/* آیکون (Lucide بجای ایموجی) */}
-        <div
-          className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
-          style={{
-            backgroundColor: task.completed
-              ? 'var(--color-accent-glow)'
-              : 'var(--color-bg-tertiary)',
-          }}
-        >
-          <TaskIcon
-            emoji={task.icon}
-            size={16}
-            color={task.completed ? 'var(--color-accent)' : 'var(--color-text-secondary)'}
-          />
+        <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: task.completed ? 'var(--color-accent-glow)' : 'var(--color-bg-tertiary)' }}>
+          <TaskIcon emoji={task.icon} size={16} color={task.completed ? 'var(--color-accent)' : 'var(--color-text-secondary)'} />
         </div>
 
-        {/* متن */}
         <div className="flex-1 min-w-0">
-          <p
-            className="text-sm font-medium transition-all duration-300"
-            style={{
-              color: task.completed ? 'var(--color-text-secondary)' : 'var(--color-text-primary)',
-              textDecoration: task.completed ? 'line-through' : 'none',
-              opacity: task.completed ? 0.6 : 1,
-            }}
-          >
+          <p className="text-sm font-medium transition-all duration-300" style={{ color: task.completed ? 'var(--color-text-secondary)' : 'var(--color-text-primary)', textDecoration: task.completed ? 'line-through' : 'none', opacity: task.completed ? 0.6 : 1 }}>
             {task.title}
           </p>
-          <span
-            className="text-[10px] font-medium"
-            style={{ color: typeColor[task.type] || 'var(--color-text-secondary)' }}
-          >
+          <span className="text-[10px] font-medium" style={{ color: typeColor[task.type] || 'var(--color-text-secondary)' }}>
             {typeLabel[task.type] || task.type}
           </span>
         </div>

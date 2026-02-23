@@ -1,6 +1,6 @@
 // src/pages/Settings.tsx
 // ─────────────────────────────────────
-// تنظیمات — با بخش نوتیفیکیشن
+// تنظیمات — تم + رنگ + صدا + نوتیف
 // ─────────────────────────────────────
 
 import { useState, useEffect } from 'react'
@@ -22,6 +22,8 @@ import {
   Bell,
   BellOff,
   Clock,
+  Volume2,
+  VolumeX,
 } from 'lucide-react'
 import { useThemeStore } from '../store/useThemeStore'
 import type { AccentColor } from '../store/useThemeStore'
@@ -62,7 +64,7 @@ const REMINDER_TIMES = [
 ]
 
 export default function Settings() {
-  const { isDark, toggleTheme, accentColor, setAccentColor } = useThemeStore()
+  const { isDark, toggleTheme, accentColor, setAccentColor, soundEnabled, toggleSound } = useThemeStore()
   const navigate = useNavigate()
 
   const [profile, setProfile] = useState<UserProfile | undefined>()
@@ -80,41 +82,30 @@ export default function Settings() {
     async function load() {
       const p = await getUserProfile()
       setProfile(p)
-
-      // لود تنظیمات نوتیف
       const settings = getNotificationSettings()
       setNotifEnabled(settings.enabled)
       setNotifHour(settings.hour)
       setNotifMinute(settings.minute)
-
       setLoading(false)
     }
     load()
   }, [])
 
-  // ─── تغییر نوتیفیکیشن ───
   const handleToggleNotification = async () => {
     if (!notifSupported) return
-
     if (!notifEnabled) {
-      // فعال کردن → درخواست مجوز
       const granted = await requestPermission()
       setPermissionStatus(getPermissionStatus())
-
       if (!granted) {
         alert('مجوز نوتیفیکیشن داده نشد. از تنظیمات مرورگر فعالش کن.')
         return
       }
-
       const newSettings = { enabled: true, hour: notifHour, minute: notifMinute }
       saveNotificationSettings(newSettings)
       setNotifEnabled(true)
       startNotificationScheduler()
-
-      // تست: یه نوتیف نمایشی بفرست
       showNotification('MODO', 'یادآوری‌ها فعال شدن! هر روز بهت یادآوری میکنم.')
     } else {
-      // غیرفعال
       const newSettings = { enabled: false, hour: notifHour, minute: notifMinute }
       saveNotificationSettings(newSettings)
       setNotifEnabled(false)
@@ -122,16 +113,12 @@ export default function Settings() {
     }
   }
 
-  // ─── تغییر ساعت ───
   const handleTimeChange = (hour: number, minute: number) => {
     setNotifHour(hour)
     setNotifMinute(minute)
     const newSettings = { enabled: notifEnabled, hour, minute }
     saveNotificationSettings(newSettings)
-
-    if (notifEnabled) {
-      startNotificationScheduler()
-    }
+    if (notifEnabled) startNotificationScheduler()
   }
 
   const handleClearChat = async () => {
@@ -200,8 +187,9 @@ export default function Settings() {
         </div>
       )}
 
-      {/* ═══ ظاهر ═══ */}
+      {/* ═══ ظاهر و صدا ═══ */}
       <div className="modo-card space-y-4">
+
         {/* تاریک/روشن */}
         <button onClick={toggleTheme} className="w-full flex items-center justify-between py-2">
           <div className="flex items-center gap-3">
@@ -209,6 +197,19 @@ export default function Settings() {
             <span>{isDark ? 'حالت تاریک' : 'حالت روشن'}</span>
           </div>
           <div className="w-12 h-6 rounded-full p-1 flex items-center transition-all duration-300" style={{ backgroundColor: isDark ? 'var(--color-accent)' : 'var(--color-border)', justifyContent: isDark ? 'flex-start' : 'flex-end' }}>
+            <div className="w-4 h-4 rounded-full bg-white transition-all duration-300" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+          </div>
+        </button>
+
+        <div className="modo-divider" />
+
+        {/* صدا */}
+        <button onClick={toggleSound} className="w-full flex items-center justify-between py-2">
+          <div className="flex items-center gap-3">
+            {soundEnabled ? <Volume2 size={20} /> : <VolumeX size={20} />}
+            <span>{soundEnabled ? 'صدای رابط کاربری' : 'صدا خاموش'}</span>
+          </div>
+          <div className="w-12 h-6 rounded-full p-1 flex items-center transition-all duration-300" style={{ backgroundColor: soundEnabled ? 'var(--color-accent)' : 'var(--color-border)', justifyContent: soundEnabled ? 'flex-start' : 'flex-end' }}>
             <div className="w-4 h-4 rounded-full bg-white transition-all duration-300" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
           </div>
         </button>
@@ -247,7 +248,6 @@ export default function Settings() {
 
       {/* ═══ نوتیفیکیشن ═══ */}
       <div className="modo-card space-y-4">
-        {/* فعال/غیرفعال */}
         <button
           onClick={handleToggleNotification}
           className="w-full flex items-center justify-between py-2"
@@ -274,7 +274,6 @@ export default function Settings() {
           </div>
         </button>
 
-        {/* انتخاب ساعت */}
         {notifEnabled && (
           <>
             <div className="modo-divider" />
@@ -333,7 +332,7 @@ export default function Settings() {
 
       <p className="text-center text-xs" style={{ color: 'var(--color-text-secondary)' }}>MODO v1.2.0</p>
 
-      {/* مودال درباره */}
+      {/* ═══ مودال درباره ═══ */}
       {showAbout && (
         <div className="fixed inset-0 flex items-center justify-center z-[100] p-4" style={{ backgroundColor: 'var(--color-overlay)' }} onClick={(e) => { if (e.target === e.currentTarget) setShowAbout(false) }}>
           <div className="modo-card-glass max-w-md w-full animate-scale-in">

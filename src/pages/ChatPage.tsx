@@ -1,6 +1,6 @@
 // src/pages/ChatPage.tsx
 // ─────────────────────────────────────
-// صفحه چت با MODO — Glass header + Quick Replies
+// صفحه چت با MODO — Glass + Quick Replies + Sound
 // ─────────────────────────────────────
 
 import { useState, useEffect, useRef } from 'react'
@@ -23,6 +23,7 @@ import {
 import { sendMessageToAI } from '../utils/api'
 import type { ChatContext } from '../utils/api'
 import { WELCOME_MESSAGE } from '../utils/mockResponses'
+import { playMessageSent, playMessageReceived } from '../utils/sounds'
 import type { ChatMessage, UserProfile } from '../utils/db'
 
 const QUICK_REPLIES = [
@@ -107,6 +108,7 @@ export default function ChatPage() {
     await saveChatMessage('user', text)
     const userMessage: ChatMessage = { role: 'user', content: text, timestamp: new Date() }
     setMessages(prev => [...prev, userMessage])
+    playMessageSent()
     await earnBadge('first_chat')
     setIsTyping(true)
 
@@ -117,6 +119,7 @@ export default function ChatPage() {
       const assistantMessage: ChatMessage = { role: 'assistant', content: response, timestamp: new Date() }
       setIsTyping(false)
       setMessages(prev => [...prev, assistantMessage])
+      playMessageReceived()
       await checkAndAwardBadges()
     } catch (err) {
       setIsTyping(false)
@@ -165,7 +168,6 @@ export default function ChatPage() {
         }}
       >
         <div className="flex items-center gap-3">
-          {/* آواتار */}
           <div
             className="w-10 h-10 rounded-full flex items-center justify-center font-black text-sm animate-breathe"
             style={{
@@ -181,7 +183,6 @@ export default function ChatPage() {
               MODO
             </h2>
             <div className="flex items-center gap-1.5">
-              {/* نقطه آنلاین — پالس */}
               <div
                 className="w-1.5 h-1.5 rounded-full animate-gentle-pulse"
                 style={{ backgroundColor: 'var(--color-accent)' }}
@@ -222,7 +223,6 @@ export default function ChatPage() {
 
       {/* ═══ پیام‌ها ═══ */}
       <div className="flex-1 overflow-y-auto px-4 py-4" style={{ paddingBottom: '100px' }}>
-        {/* تاریخ */}
         <div className="text-center mb-6">
           <span
             className="text-[10px] px-3 py-1 rounded-full"
