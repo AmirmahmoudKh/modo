@@ -1,17 +1,16 @@
 // src/components/goals/GoalForm.tsx
 // ─────────────────────────────────────
-// فرم ساخت هدف جدید (Modal/Popup)
+// فرم ساخت هدف جدید — بدون ایموجی
 // ─────────────────────────────────────
 
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { X, Target, Lightbulb, Check } from 'lucide-react'
 
 interface GoalFormProps {
   onSubmit: (title: string, description: string) => void
   onClose: () => void
 }
 
-// پیشنهادات هدف
 const SUGGESTIONS = [
   { title: 'خواب منظم', desc: 'هر شب ساعت ۱۱ بخوابم' },
   { title: 'ورزش روزانه', desc: 'هر روز ۳۰ دقیقه ورزش کنم' },
@@ -32,56 +31,36 @@ export default function GoalForm({ onSubmit, onClose }: GoalFormProps) {
     onSubmit(title.trim(), description.trim())
   }
 
-  // انتخاب پیشنهاد
   const selectSuggestion = (s: typeof SUGGESTIONS[0]) => {
     setTitle(s.title)
     setDescription(s.desc)
   }
 
   return (
-    // ─── Overlay (پس‌زمینه تیره) ───
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4"
-      style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) onClose()
-      }}
+      style={{ backgroundColor: 'var(--color-overlay)' }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
-      {/* ─── Modal ─── */}
       <div
-        className="w-full max-w-lg rounded-3xl p-6 max-h-[85vh] overflow-y-auto"
-        style={{
-          backgroundColor: 'var(--color-bg-primary)',
-          border: '1px solid var(--color-border)',
-        }}
+        className="w-full max-w-lg rounded-3xl p-6 max-h-[85vh] overflow-y-auto animate-scale-in"
+        style={{ backgroundColor: 'var(--color-bg-primary)', border: '1px solid var(--color-border)' }}
       >
         {/* هدر */}
         <div className="flex items-center justify-between mb-6">
-          <h2
-            className="text-xl font-bold"
-            style={{ color: 'var(--color-text-primary)' }}
-          >
-            🎯 هدف جدید
-          </h2>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-xl transition-all active:scale-90"
-            style={{ color: 'var(--color-text-secondary)' }}
-          >
+          <div className="flex items-center gap-2">
+            <Target size={22} style={{ color: 'var(--color-accent)' }} />
+            <h2 className="text-xl font-bold" style={{ color: 'var(--color-text-primary)' }}>هدف جدید</h2>
+          </div>
+          <button onClick={onClose} className="p-2 rounded-xl transition-all active:scale-90" style={{ color: 'var(--color-text-secondary)' }}>
             <X size={22} />
           </button>
         </div>
 
         {/* فرم */}
         <div className="space-y-4">
-          {/* عنوان */}
           <div>
-            <label
-              className="block text-sm font-medium mb-2"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
-              عنوان هدف *
-            </label>
+            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>عنوان هدف</label>
             <input
               type="text"
               value={title}
@@ -97,14 +76,8 @@ export default function GoalForm({ onSubmit, onClose }: GoalFormProps) {
             />
           </div>
 
-          {/* توضیحات */}
           <div>
-            <label
-              className="block text-sm font-medium mb-2"
-              style={{ color: 'var(--color-text-secondary)' }}
-            >
-              توضیحات (اختیاری)
-            </label>
+            <label className="block text-sm font-medium mb-2" style={{ color: 'var(--color-text-secondary)' }}>توضیحات (اختیاری)</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -122,12 +95,12 @@ export default function GoalForm({ onSubmit, onClose }: GoalFormProps) {
 
         {/* پیشنهادات */}
         <div className="mt-6">
-          <p
-            className="text-sm font-medium mb-3"
-            style={{ color: 'var(--color-text-secondary)' }}
-          >
-            💡 یا یکی از اینا رو انتخاب کن:
-          </p>
+          <div className="flex items-center gap-1.5 mb-3">
+            <Lightbulb size={14} style={{ color: 'var(--color-accent)' }} />
+            <p className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
+              یا یکی از اینا رو انتخاب کن:
+            </p>
+          </div>
           <div className="flex flex-wrap gap-2">
             {SUGGESTIONS.map((s) => (
               <button
@@ -135,15 +108,9 @@ export default function GoalForm({ onSubmit, onClose }: GoalFormProps) {
                 onClick={() => selectSuggestion(s)}
                 className="px-3 py-2 rounded-xl text-xs font-medium transition-all active:scale-95"
                 style={{
-                  backgroundColor: title === s.title
-                    ? 'var(--color-accent-light)'
-                    : 'var(--color-bg-secondary)',
-                  color: title === s.title
-                    ? 'var(--color-accent)'
-                    : 'var(--color-text-secondary)',
-                  border: `1px solid ${title === s.title
-                    ? 'var(--color-accent)'
-                    : 'var(--color-border)'}`,
+                  backgroundColor: title === s.title ? 'var(--color-accent-light)' : 'var(--color-bg-secondary)',
+                  color: title === s.title ? 'var(--color-accent)' : 'var(--color-text-secondary)',
+                  border: `1px solid ${title === s.title ? 'var(--color-accent)' : 'var(--color-border)'}`,
                 }}
               >
                 {s.title}
@@ -156,13 +123,14 @@ export default function GoalForm({ onSubmit, onClose }: GoalFormProps) {
         <button
           onClick={handleSubmit}
           disabled={!isValid}
-          className="w-full mt-6 py-4 rounded-2xl font-bold text-lg transition-all active:scale-[0.98]"
+          className="w-full mt-6 py-4 rounded-2xl font-bold text-lg transition-all active:scale-[0.98] flex items-center justify-center gap-2"
           style={{
             backgroundColor: isValid ? 'var(--color-accent)' : 'var(--color-border)',
             color: isValid ? '#FFFFFF' : 'var(--color-text-secondary)',
           }}
         >
-          ✅ ثبت هدف
+          <Check size={20} />
+          <span>ثبت هدف</span>
         </button>
       </div>
     </div>
