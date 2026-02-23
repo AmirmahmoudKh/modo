@@ -1,6 +1,6 @@
 // src/pages/Settings.tsx
 // ─────────────────────────────────────
-// تنظیمات — بدون ایموجی
+// تنظیمات — با بخش نوتیفیکیشن
 // ─────────────────────────────────────
 
 import { useState, useEffect } from 'react'
@@ -19,6 +19,9 @@ import {
   Check,
   SlidersHorizontal,
   Sparkles,
+  Bell,
+  BellOff,
+  Clock,
 } from 'lucide-react'
 import { useThemeStore } from '../store/useThemeStore'
 import type { AccentColor } from '../store/useThemeStore'
@@ -28,6 +31,16 @@ import {
   clearChatHistory,
   resetAllData,
 } from '../utils/dbHelpers'
+import {
+  isNotificationSupported,
+  getPermissionStatus,
+  requestPermission,
+  getNotificationSettings,
+  saveNotificationSettings,
+  startNotificationScheduler,
+  stopNotificationScheduler,
+  showNotification,
+} from '../utils/notifications'
 import type { UserProfile } from '../utils/db'
 
 const ACCENT_COLORS: { id: AccentColor; label: string; value: string }[] = [
@@ -38,6 +51,16 @@ const ACCENT_COLORS: { id: AccentColor; label: string; value: string }[] = [
   { id: 'amber',   label: 'طلایی', value: '#F59E0B' },
 ]
 
+const REMINDER_TIMES = [
+  { hour: 7,  minute: 0,  label: '۷ صبح' },
+  { hour: 9,  minute: 0,  label: '۹ صبح' },
+  { hour: 12, minute: 0,  label: '۱۲ ظهر' },
+  { hour: 18, minute: 0,  label: '۶ عصر' },
+  { hour: 20, minute: 0,  label: '۸ شب' },
+  { hour: 21, minute: 0,  label: '۹ شب' },
+  { hour: 22, minute: 0,  label: '۱۰ شب' },
+]
+
 export default function Settings() {
   const { isDark, toggleTheme, accentColor, setAccentColor } = useThemeStore()
   const navigate = useNavigate()
@@ -46,14 +69,70 @@ export default function Settings() {
   const [showAbout, setShowAbout] = useState(false)
   const [loading, setLoading] = useState(true)
 
+  // نوتیفیکیشن
+  const [notifSupported] = useState(isNotificationSupported())
+  const [notifEnabled, setNotifEnabled] = useState(false)
+  const [notifHour, setNotifHour] = useState(21)
+  const [notifMinute, setNotifMinute] = useState(0)
+  const [permissionStatus, setPermissionStatus] = useState(getPermissionStatus())
+
   useEffect(() => {
     async function load() {
       const p = await getUserProfile()
       setProfile(p)
+
+      // لود تنظیمات نوتیف
+      const settings = getNotificationSettings()
+      setNotifEnabled(settings.enabled)
+      setNotifHour(settings.hour)
+      setNotifMinute(settings.minute)
+
       setLoading(false)
     }
     load()
   }, [])
+
+  // ─── تغییر نوتیفیکیشن ───
+  const handleToggleNotification = async () => {
+    if (!notifSupported) return
+
+    if (!notifEnabled) {
+      // فعال کردن → درخواست مجوز
+      const granted = await requestPermission()
+      setPermissionStatus(getPermissionStatus())
+
+      if (!granted) {
+        alert('مجوز نوتیفیکیشن داده نشد. از تنظیمات مرورگر فعالش کن.')
+        return
+      }
+
+      const newSettings = { enabled: true, hour: notifHour, minute: notifMinute }
+      saveNotificationSettings(newSettings)
+      setNotifEnabled(true)
+      startNotificationScheduler()
+
+      // تست: یه نوتیف نمایشی بفرست
+      showNotification('MODO', 'یادآوری‌ها فعال شدن! هر روز بهت یادآوری میکنم.')
+    } else {
+      // غیرفعال
+      const newSettings = { enabled: false, hour: notifHour, minute: notifMinute }
+      saveNotificationSettings(newSettings)
+      setNotifEnabled(false)
+      stopNotificationScheduler()
+    }
+  }
+
+  // ─── تغییر ساعت ───
+  const handleTimeChange = (hour: number, minute: number) => {
+    setNotifHour(hour)
+    setNotifMinute(minute)
+    const newSettings = { enabled: notifEnabled, hour, minute }
+    saveNotificationSettings(newSettings)
+
+    if (notifEnabled) {
+      startNotificationScheduler()
+    }
+  }
 
   const handleClearChat = async () => {
     if (!window.confirm('مطمئنی میخوای تمام تاریخچه چت رو پاک کنی؟')) return
@@ -94,7 +173,7 @@ export default function Settings() {
         <h1 className="text-2xl font-bold" style={{ color: 'var(--color-text-primary)' }}>تنظیمات</h1>
       </div>
 
-      {/* پروفایل */}
+      {/* ═══ پروفایل ═══ */}
       {profile && (
         <div className="modo-card">
           <div className="flex items-center gap-4">
@@ -121,8 +200,9 @@ export default function Settings() {
         </div>
       )}
 
-      {/* ظاهر */}
+      {/* ═══ ظاهر ═══ */}
       <div className="modo-card space-y-4">
+        {/* تاریک/روشن */}
         <button onClick={toggleTheme} className="w-full flex items-center justify-between py-2">
           <div className="flex items-center gap-3">
             {isDark ? <Moon size={20} /> : <Sun size={20} />}
@@ -135,6 +215,7 @@ export default function Settings() {
 
         <div className="modo-divider" />
 
+        {/* رنگ تم */}
         <div>
           <div className="flex items-center gap-2 mb-4">
             <Palette size={18} style={{ color: 'var(--color-accent)' }} />
@@ -164,7 +245,69 @@ export default function Settings() {
         </div>
       </div>
 
-      {/* عملیات */}
+      {/* ═══ نوتیفیکیشن ═══ */}
+      <div className="modo-card space-y-4">
+        {/* فعال/غیرفعال */}
+        <button
+          onClick={handleToggleNotification}
+          className="w-full flex items-center justify-between py-2"
+          disabled={!notifSupported}
+        >
+          <div className="flex items-center gap-3">
+            {notifEnabled ? <Bell size={20} style={{ color: 'var(--color-accent)' }} /> : <BellOff size={20} />}
+            <div>
+              <span className="block">یادآوری روزانه</span>
+              {!notifSupported && (
+                <span className="text-[10px]" style={{ color: 'var(--color-danger)' }}>
+                  مرورگرت از نوتیفیکیشن پشتیبانی نمیکنه
+                </span>
+              )}
+              {notifSupported && permissionStatus === 'denied' && (
+                <span className="text-[10px]" style={{ color: 'var(--color-danger)' }}>
+                  مجوز مسدود شده — از تنظیمات مرورگر فعال کن
+                </span>
+              )}
+            </div>
+          </div>
+          <div className="w-12 h-6 rounded-full p-1 flex items-center transition-all duration-300" style={{ backgroundColor: notifEnabled ? 'var(--color-accent)' : 'var(--color-border)', justifyContent: notifEnabled ? 'flex-start' : 'flex-end', opacity: notifSupported ? 1 : 0.5 }}>
+            <div className="w-4 h-4 rounded-full bg-white transition-all duration-300" style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
+          </div>
+        </button>
+
+        {/* انتخاب ساعت */}
+        {notifEnabled && (
+          <>
+            <div className="modo-divider" />
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Clock size={16} style={{ color: 'var(--color-accent)' }} />
+                <span className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>ساعت یادآوری</span>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {REMINDER_TIMES.map((time) => {
+                  const isSelected = notifHour === time.hour && notifMinute === time.minute
+                  return (
+                    <button
+                      key={`${time.hour}-${time.minute}`}
+                      onClick={() => handleTimeChange(time.hour, time.minute)}
+                      className="px-4 py-2 rounded-xl text-sm font-medium transition-all active:scale-95"
+                      style={{
+                        backgroundColor: isSelected ? 'var(--color-accent)' : 'var(--color-bg-tertiary)',
+                        color: isSelected ? '#FFFFFF' : 'var(--color-text-secondary)',
+                        border: `1px solid ${isSelected ? 'var(--color-accent)' : 'var(--color-border)'}`,
+                      }}
+                    >
+                      {time.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* ═══ عملیات ═══ */}
       <div className="modo-card space-y-2">
         <button onClick={handleRedoOnboarding} className="w-full flex items-center justify-between py-2">
           <div className="flex items-center gap-2"><RotateCcw size={18} />انجام مجدد آنبوردینگ</div>
@@ -180,7 +323,7 @@ export default function Settings() {
         </button>
       </div>
 
-      {/* درباره */}
+      {/* ═══ درباره ═══ */}
       <div className="modo-card">
         <button onClick={() => setShowAbout(true)} className="w-full flex items-center justify-between py-2">
           <div className="flex items-center gap-2"><Info size={18} />درباره MODO</div>
@@ -188,7 +331,7 @@ export default function Settings() {
         </button>
       </div>
 
-      <p className="text-center text-xs" style={{ color: 'var(--color-text-secondary)' }}>MODO v1.1.0</p>
+      <p className="text-center text-xs" style={{ color: 'var(--color-text-secondary)' }}>MODO v1.2.0</p>
 
       {/* مودال درباره */}
       {showAbout && (

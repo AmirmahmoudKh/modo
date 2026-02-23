@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { hasCompletedOnboarding } from './utils/dbHelpers'
+import { startNotificationScheduler } from './utils/notifications'
 
 // صفحات
 import Onboarding from './pages/Onboarding'
@@ -28,6 +29,11 @@ function App() {
     async function checkOnboarding() {
       const completed = await hasCompletedOnboarding()
       setShowOnboarding(!completed)
+
+      // اگه آنبوردینگ تکمیل شده → شروع چک نوتیفیکیشن
+      if (completed) {
+        startNotificationScheduler()
+      }
     }
     checkOnboarding()
   }, [])
@@ -39,7 +45,6 @@ function App() {
         className="min-h-screen flex flex-col items-center justify-center gap-5"
         style={{ backgroundColor: 'var(--color-bg-primary)' }}
       >
-        {/* لوگو — بانس و درخشش */}
         <div className="animate-bounce-in">
           <div
             className="w-20 h-20 rounded-3xl flex items-center justify-center modo-btn-primary animate-breathe"
@@ -49,40 +54,22 @@ function App() {
           </div>
         </div>
 
-        {/* نام — فید این با تاخیر */}
-        <div
-          className="animate-fade-in"
-          style={{ animationDelay: '0.3s' }}
-        >
+        <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
           <div className="text-4xl font-black modo-gradient-text tracking-tight">
             MODO
           </div>
         </div>
 
-        {/* شعار — فید این با تاخیر بیشتر */}
-        <div
-          className="animate-fade-in"
-          style={{ animationDelay: '0.6s' }}
-        >
-          <p
-            className="text-sm font-medium"
-            style={{ color: 'var(--color-text-secondary)' }}
-          >
+        <div className="animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <p className="text-sm font-medium" style={{ color: 'var(--color-text-secondary)' }}>
             ساختار، وضوح، رشد
           </p>
         </div>
 
-        {/* اسپینر — فید این آخر */}
-        <div
-          className="animate-fade-in"
-          style={{ animationDelay: '0.9s' }}
-        >
+        <div className="animate-fade-in" style={{ animationDelay: '0.9s' }}>
           <div
             className="w-6 h-6 border-2 rounded-full animate-spin"
-            style={{
-              borderColor: 'var(--color-border)',
-              borderTopColor: 'var(--color-accent)',
-            }}
+            style={{ borderColor: 'var(--color-border)', borderTopColor: 'var(--color-accent)' }}
           />
         </div>
       </div>
@@ -91,11 +78,10 @@ function App() {
 
   // ─── آنبوردینگ ───
   if (showOnboarding) {
-    return (
-      <Onboarding
-        onComplete={() => setShowOnboarding(false)}
-      />
-    )
+    return <Onboarding onComplete={() => {
+      setShowOnboarding(false)
+      startNotificationScheduler()
+    }} />
   }
 
   // ─── اپ اصلی ───
@@ -103,7 +89,6 @@ function App() {
     <BrowserRouter>
       <OfflineNotice />
       <InstallPrompt />
-
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
