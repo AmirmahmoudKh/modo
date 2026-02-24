@@ -1,12 +1,13 @@
 // src/App.tsx
 // ─────────────────────────────────────
-// فایل اصلی — Lazy loading + Error boundary
+// فایل اصلی — Lazy loading + Error boundary + Warmup
 // ─────────────────────────────────────
 
 import { useState, useEffect, lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { hasCompletedOnboarding } from './utils/dbHelpers'
 import { startNotificationScheduler } from './utils/notifications'
+import { warmupBackend } from './utils/api'
 import ErrorBoundary from './components/ErrorBoundary'
 import Layout from './components/Layout'
 
@@ -50,6 +51,9 @@ function App() {
   const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null)
 
   useEffect(() => {
+    // ─── سرور رو فوری بیدار کن ───
+    warmupBackend()
+
     async function checkOnboarding() {
       const completed = await hasCompletedOnboarding()
       setShowOnboarding(!completed)

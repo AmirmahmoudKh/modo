@@ -1,6 +1,6 @@
 // src/utils/api.ts
 // ─────────────────────────────────────
-// ارتباط با بکند
+// ارتباط با بکند + Warmup
 // ─────────────────────────────────────
 
 import type { ChatMessage, UserProfile } from './db'
@@ -19,7 +19,44 @@ export interface ChatContext {
   completedGoalsCount: number
 }
 
-// ─── ارسال پیام به AI ───
+// ═══════════════════════════════════════
+// Warmup — سرور Render رو بیدار کن
+// ═══════════════════════════════════════
+
+let isBackendWarm = false
+
+export function warmupBackend(): void {
+  if (isBackendWarm) return
+
+  fetch(`${API_BASE}/api/ping`, { method: 'GET' })
+    .then((res) => {
+      if (res.ok) {
+        isBackendWarm = true
+        console.log('[MODO] Backend is warm and ready')
+      }
+    })
+    .catch(() => {
+      console.log('[MODO] Backend warming up...')
+      // تلاش مجدد بعد از ۵ ثانیه
+      setTimeout(() => {
+        fetch(`${API_BASE}/api/ping`, { method: 'GET' })
+          .then((res) => {
+            if (res.ok) {
+              isBackendWarm = true
+              console.log('[MODO] Backend is warm (retry)')
+            }
+          })
+          .catch(() => {
+            console.log('[MODO] Backend still waking up...')
+          })
+      }, 5000)
+    })
+}
+
+// ═══════════════════════════════════════
+// ارسال پیام به AI
+// ═══════════════════════════════════════
+
 export async function sendMessageToAI(
   message: string,
   history: ChatMessage[],
@@ -44,6 +81,10 @@ export async function sendMessageToAI(
         }
       : undefined
 
+    // ─── Timeout: حداکثر ۶۰ ثانیه (برای cold start) ───
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 60000)
+
     const response = await fetch(`${API_BASE}/api/chat`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -53,7 +94,10 @@ export async function sendMessageToAI(
         userProfile: simpleProfile,
         context: context || undefined,
       }),
+      signal: controller.signal,
     })
+
+    clearTimeout(timeoutId)
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}))
@@ -61,11 +105,18 @@ export async function sendMessageToAI(
     }
 
     const data = await response.json()
+    isBackendWarm = true
     return data.reply
 
   } catch (error) {
     console.error('خطا در ارتباط با AI:', error)
 
+    // ─── Timeout ───
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw new Error('سرور خیلی طول کشید. دوباره تلاش کن.')
+    }
+
+    // ─── آفلاین / سرور خاموش ───
     if (error instanceof TypeError && error.message.includes('fetch')) {
       console.warn('بکند در دسترس نیست. از پاسخ‌های ساختگی استفاده میشه.')
       return getMockResponse(message)
