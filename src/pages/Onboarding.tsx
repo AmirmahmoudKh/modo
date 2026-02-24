@@ -1,6 +1,6 @@
 // src/pages/Onboarding.tsx
 // ─────────────────────────────────────
-// آنبوردینگ: ۹ مرحله (۰ تا ۸)
+// آنبوردینگ: ۱۰ مرحله (۰ تا ۹)
 // بدون ایموجی — فقط آیکون Lucide
 // ─────────────────────────────────────
 
@@ -31,6 +31,8 @@ import {
   Zap,
   CheckCircle2,
   Rocket,
+  Feather,
+  MessageCircle,
 } from 'lucide-react'
 import { saveUserProfile, earnBadge, recordDailyActivity } from '../utils/dbHelpers'
 
@@ -55,6 +57,7 @@ interface FormData {
   sleepTime: string
   focusLevel: string
   screenTime: string
+  communicationStyle: string
 }
 
 // ═══ گزینه‌ها ═══
@@ -102,7 +105,28 @@ const SCREEN_OPTIONS: Option[] = [
   { value: 'over-8',  label: 'بیشتر از ۸ ساعت',  icon: <AlertTriangle size={20} style={{ color: '#ef4444' }} /> },
 ]
 
-const TOTAL_STEPS = 9
+const COMMUNICATION_OPTIONS: Option[] = [
+  {
+    value: 'direct',
+    label: 'مستقیم و محکم',
+    icon: <Zap size={22} style={{ color: '#f59e0b' }} />,
+    description: 'رک و بدون تعارف بگو چیکار کنم',
+  },
+  {
+    value: 'gradual',
+    label: 'مرحله‌ای و آرام',
+    icon: <Feather size={22} style={{ color: '#3b82f6' }} />,
+    description: 'قدم به قدم و با آرامش راهنماییم کن',
+  },
+  {
+    value: 'mixed',
+    label: 'ترکیبی',
+    icon: <Sparkles size={22} style={{ color: '#8b5cf6' }} />,
+    description: 'بسته به شرایط، هر دو سبک',
+  },
+]
+
+const TOTAL_STEPS = 10
 
 // ═══ کامپوننت اصلی ═══
 
@@ -112,6 +136,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
   const [data, setData] = useState<FormData>({
     name: '', age: '', status: '', goals: [],
     sleepTime: '', focusLevel: '', screenTime: '',
+    communicationStyle: '',
   })
 
   const isStepValid = (): boolean => {
@@ -124,7 +149,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
       case 5: return data.sleepTime !== ''
       case 6: return data.focusLevel !== ''
       case 7: return data.screenTime !== ''
-      case 8: return true
+      case 8: return data.communicationStyle !== ''
+      case 9: return true
       default: return false
     }
   }
@@ -159,6 +185,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         focusLevel: data.focusLevel,
         screenTime: data.screenTime,
         motivation: '',
+        communicationStyle: (data.communicationStyle || 'mixed') as 'direct' | 'gradual' | 'mixed',
       })
       await earnBadge('first_step')
       await recordDailyActivity()
@@ -202,7 +229,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
         {step === 5 && renderOptions('معمولاً کی میخوابی؟', 'ساعت تقریبی خوابت', <Moon size={28} />, SLEEP_OPTIONS, 'sleepTime')}
         {step === 6 && renderFocusScreen('تمرکزت چطوره؟', 'صادقانه بگو — قضاوتی نیست', <Brain size={28} />, FOCUS_OPTIONS, 'focusLevel')}
         {step === 7 && renderFocusScreen('روزی چقدر گوشی دستته؟', 'میانگین زمان روزانه', <Smartphone size={28} />, SCREEN_OPTIONS, 'screenTime')}
-        {step === 8 && renderSummary()}
+        {step === 8 && renderFocusScreen('MODO چطوری باهات حرف بزنه؟', 'این فقط شدت بیان رو تنظیم میکنه، شخصیت ثابت میمونه', <MessageCircle size={28} />, COMMUNICATION_OPTIONS, 'communicationStyle')}
+        {step === 9 && renderSummary()}
       </div>
 
       {/* دکمه پایین */}
@@ -436,6 +464,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
     const sleepLabel = SLEEP_OPTIONS.find(o => o.value === data.sleepTime)?.label || ''
     const focusLabel = FOCUS_OPTIONS.find(o => o.value === data.focusLevel)?.label || ''
     const screenLabel = SCREEN_OPTIONS.find(o => o.value === data.screenTime)?.label || ''
+    const commLabel = COMMUNICATION_OPTIONS.find(o => o.value === data.communicationStyle)?.label || 'ترکیبی'
     const goalLabels = data.goals.map(g => GOAL_OPTIONS.find(o => o.value === g))
 
     return (
@@ -483,7 +512,7 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
 
           <div style={{ borderTop: '1px solid var(--color-border)' }} />
 
-          {/* عادت‌ها */}
+          {/* عادت‌ها و تنظیمات */}
           <div className="grid grid-cols-1 gap-3">
             <div className="flex justify-between items-center">
               <span className="flex items-center gap-2" style={{ color: 'var(--color-text-secondary)' }}>
@@ -502,6 +531,12 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 <Smartphone size={16} /> اسکرین تایم
               </span>
               <span style={{ color: 'var(--color-text-primary)' }}>{screenLabel}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="flex items-center gap-2" style={{ color: 'var(--color-text-secondary)' }}>
+                <MessageCircle size={16} /> سبک ارتباط
+              </span>
+              <span style={{ color: 'var(--color-text-primary)' }}>{commLabel}</span>
             </div>
           </div>
         </div>

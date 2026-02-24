@@ -37,7 +37,6 @@ export function warmupBackend(): void {
     })
     .catch(() => {
       console.log('[MODO] Backend warming up...')
-      // تلاش مجدد بعد از ۵ ثانیه
       setTimeout(() => {
         fetch(`${API_BASE}/api/ping`, { method: 'GET' })
           .then((res) => {
@@ -78,10 +77,10 @@ export async function sendMessageToAI(
           sleepTime: userProfile.sleepTime,
           focusLevel: userProfile.focusLevel,
           screenTime: userProfile.screenTime,
+          communicationStyle: userProfile.communicationStyle,
         }
       : undefined
 
-    // ─── Timeout: حداکثر ۶۰ ثانیه (برای cold start) ───
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), 60000)
 
@@ -111,12 +110,10 @@ export async function sendMessageToAI(
   } catch (error) {
     console.error('خطا در ارتباط با AI:', error)
 
-    // ─── Timeout ───
     if (error instanceof DOMException && error.name === 'AbortError') {
       throw new Error('سرور خیلی طول کشید. دوباره تلاش کن.')
     }
 
-    // ─── آفلاین / سرور خاموش ───
     if (error instanceof TypeError && error.message.includes('fetch')) {
       console.warn('بکند در دسترس نیست. از پاسخ‌های ساختگی استفاده میشه.')
       return getMockResponse(message)

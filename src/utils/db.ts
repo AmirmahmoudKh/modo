@@ -17,6 +17,7 @@ export interface UserProfile {
   focusLevel: string
   screenTime: string
   motivation: string
+  communicationStyle?: 'direct' | 'gradual' | 'mixed'
   createdAt: Date
 }
 
