@@ -1,15 +1,28 @@
 // src/components/chat/ChatInput.tsx
 // ─────────────────────────────────────
-// ورودی پیام — Glass effect
+// ورودی پیام — Glass effect + صدای تایپ
 // ─────────────────────────────────────
 
 import { useState, useRef } from 'react'
 import { Send } from 'lucide-react'
+import { playTypingSound, playTypingSpecial } from '../../utils/sounds'
 
 interface ChatInputProps {
   onSend: (message: string) => void
   disabled?: boolean
 }
+
+// ─── کلیدهای خاصی که صدا نباید داشته باشن ───
+const SILENT_KEYS = new Set([
+  'Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Tab',
+  'Escape', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+  'Home', 'End', 'PageUp', 'PageDown', 'Insert', 'Delete',
+  'F1', 'F2', 'F3', 'F4', 'F5', 'F6', 'F7', 'F8', 'F9', 'F10', 'F11', 'F12',
+  'NumLock', 'ScrollLock', 'Pause', 'PrintScreen', 'ContextMenu',
+])
+
+// ─── کلیدهای خاص با صدای بلندتر ───
+const SPECIAL_KEYS = new Set(['Backspace', ' ', 'Enter'])
 
 export default function ChatInput({ onSend, disabled = false }: ChatInputProps) {
   const [text, setText] = useState('')
@@ -26,9 +39,20 @@ export default function ChatInput({ onSend, disabled = false }: ChatInputProps) 
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    // ─── Enter = ارسال ───
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSend()
+      return
+    }
+
+    // ─── صدای تایپ ───
+    if (SILENT_KEYS.has(e.key)) return
+
+    if (SPECIAL_KEYS.has(e.key)) {
+      playTypingSpecial()
+    } else {
+      playTypingSound()
     }
   }
 
