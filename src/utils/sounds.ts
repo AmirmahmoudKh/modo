@@ -1,6 +1,6 @@
 // src/utils/sounds.ts
 // ─────────────────────────────────────
-// سیستم صداهای UI — نسخه ۳
+// سیستم صداهای UI — نسخه ۳.۱
 // صداهای طبیعی با Noise + FM Synthesis
 // + صدای تایپ مکانیکی
 // ─────────────────────────────────────
@@ -26,7 +26,7 @@ function getAudioContext(): AudioContext | null {
 // ─── ساخت بافر نویز (یکبار ساخته میشه، همیشه استفاده) ───
 function getNoiseBuffer(ctx: AudioContext): AudioBuffer {
   if (noiseBuffer && noiseBuffer.sampleRate === ctx.sampleRate) return noiseBuffer
-  const size = ctx.sampleRate // ۱ ثانیه نویز
+  const size = ctx.sampleRate
   noiseBuffer = ctx.createBuffer(1, size, ctx.sampleRate)
   const data = noiseBuffer.getChannelData(0)
   for (let i = 0; i < size; i++) {
@@ -93,17 +93,14 @@ function playWarmTone(
   duration: number,
   volume: number
 ): void {
-  // ─── فرکانس اصلی (triangle = گرم) ───
   const osc1 = ctx.createOscillator()
   osc1.type = 'triangle'
   osc1.frequency.value = freq
 
-  // ─── هارمونیک دوم (اکتاو بالاتر، خیلی آروم) ───
   const osc2 = ctx.createOscillator()
   osc2.type = 'sine'
   osc2.frequency.value = freq * 2
 
-  // ─── هارمونیک سوم (chorus خفیف) ───
   const osc3 = ctx.createOscillator()
   osc3.type = 'sine'
   osc3.frequency.value = freq + 1.5
@@ -119,7 +116,6 @@ function playWarmTone(
   gain2.connect(ctx.destination)
   gain3.connect(ctx.destination)
 
-  // ─── Envelope نرم ───
   const attack = 0.012
   const releaseStart = startTime + duration * 0.5
 
@@ -145,16 +141,45 @@ function playWarmTone(
 }
 
 // ═══════════════════════════════════════
+// Helper: صدای پاپ (ارسال و دریافت مشترک)
+// ═══════════════════════════════════════
+
+function playPopSound(): void {
+  const ctx = getAudioContext()
+  if (!ctx) return
+
+  const now = ctx.currentTime
+
+  const osc = ctx.createOscillator()
+  const gain = ctx.createGain()
+
+  osc.connect(gain)
+  gain.connect(ctx.destination)
+
+  osc.type = 'sine'
+  osc.frequency.setValueAtTime(350, now)
+  osc.frequency.exponentialRampToValueAtTime(700, now + 0.06)
+
+  gain.gain.setValueAtTime(0, now)
+  gain.gain.linearRampToValueAtTime(0.06, now + 0.008)
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1)
+
+  osc.start(now)
+  osc.stop(now + 0.12)
+
+  playNoiseBurst(ctx, 5000, 1, 0.015, 0.015, 'highpass')
+}
+
+// ═══════════════════════════════════════
 // صداها
 // ═══════════════════════════════════════
 
-// ─── صدای تایپ (مکانیکی نرم — مثل Opera GX) ───
+// ─── صدای تایپ (مکانیکی نرم) ───
 let lastTypingTime = 0
 
 export function playTypingSound(): void {
   if (!isSoundEnabled()) return
 
-  // ─── Throttle: حداقل ۳۵ms بین صداها ───
   const now = Date.now()
   if (now - lastTypingTime < 35) return
   lastTypingTime = now
@@ -162,9 +187,8 @@ export function playTypingSound(): void {
   const ctx = getAudioContext()
   if (!ctx) return
 
-  // ─── نویز فیلترشده = صدای کلیک طبیعی ───
-  const freqVariation = 2500 + Math.random() * 2500 // ۲۵۰۰ تا ۵۰۰۰ Hz
-  const volumeVariation = 0.025 + Math.random() * 0.015 // حجم متغیر
+  const freqVariation = 2500 + Math.random() * 2500
+  const volumeVariation = 0.025 + Math.random() * 0.015
 
   playNoiseBurst(ctx, freqVariation, 1.5, 0.018, volumeVariation)
 }
@@ -183,7 +207,7 @@ export function playTypingSpecial(): void {
   playNoiseBurst(ctx, 1800 + Math.random() * 1000, 1, 0.025, 0.04)
 }
 
-// ─── تیک تسک: صدای زنگوله گرم ───
+// ─── تیک تسک: صدای نرم و رضایت‌بخش ───
 export function playTaskComplete(): void {
   if (!isSoundEnabled()) return
   const ctx = getAudioContext()
@@ -191,23 +215,7 @@ export function playTaskComplete(): void {
 
   const now = ctx.currentTime
 
-  // نویز کوتاه برای "ضربه" اولیه
-  playNoiseBurst(ctx, 4000, 2, 0.03, 0.03)
-
-  // دو نت گرم صعودی
-  playWarmTone(ctx, 659, now + 0.01, 0.3, 0.07)   // E5
-  playWarmTone(ctx, 880, now + 0.12, 0.35, 0.06)   // A5
-}
-
-// ─── ارسال پیام: صدای "پاپ" نرم ───
-export function playMessageSent(): void {
-  if (!isSoundEnabled()) return
-  const ctx = getAudioContext()
-  if (!ctx) return
-
-  const now = ctx.currentTime
-
-  // ─── Sine sweep صعودی (مثل حباب) ───
+  // یه "پاپ" نرم‌تر و بم‌تر
   const osc = ctx.createOscillator()
   const gain = ctx.createGain()
 
@@ -215,29 +223,30 @@ export function playMessageSent(): void {
   gain.connect(ctx.destination)
 
   osc.type = 'sine'
-  osc.frequency.setValueAtTime(350, now)
-  osc.frequency.exponentialRampToValueAtTime(700, now + 0.06)
+  osc.frequency.setValueAtTime(280, now)
+  osc.frequency.exponentialRampToValueAtTime(520, now + 0.07)
 
   gain.gain.setValueAtTime(0, now)
-  gain.gain.linearRampToValueAtTime(0.06, now + 0.008)
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.1)
+  gain.gain.linearRampToValueAtTime(0.07, now + 0.01)
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.15)
 
   osc.start(now)
-  osc.stop(now + 0.12)
+  osc.stop(now + 0.17)
 
-  // ─── نویز خفیف برای طبیعی‌تر شدن ───
-  playNoiseBurst(ctx, 5000, 1, 0.015, 0.015, 'highpass')
+  // نویز خفیف
+  playNoiseBurst(ctx, 3000, 1, 0.02, 0.012, 'highpass')
 }
 
-// ─── دریافت پیام: دو نت گرم (مثل نوتیفیکیشن iOS) ───
+// ─── ارسال پیام: صدای "پاپ" ───
+export function playMessageSent(): void {
+  if (!isSoundEnabled()) return
+  playPopSound()
+}
+
+// ─── دریافت پیام: همون صدای "پاپ" ───
 export function playMessageReceived(): void {
   if (!isSoundEnabled()) return
-  const ctx = getAudioContext()
-  if (!ctx) return
-
-  const now = ctx.currentTime
-  playWarmTone(ctx, 392, now, 0.22, 0.06)           // G4
-  playWarmTone(ctx, 523, now + 0.13, 0.28, 0.05)    // C5
+  playPopSound()
 }
 
 // ─── نشان کسب شده: آکورد ماژور ───
@@ -248,17 +257,15 @@ export function playBadgeEarned(): void {
 
   const now = ctx.currentTime
 
-  // C major arpeggio
-  playWarmTone(ctx, 523, now, 0.3, 0.06)             // C5
-  playWarmTone(ctx, 659, now + 0.15, 0.3, 0.06)      // E5
-  playWarmTone(ctx, 784, now + 0.30, 0.3, 0.06)      // G5
-  playWarmTone(ctx, 1047, now + 0.45, 0.45, 0.08)    // C6
+  playWarmTone(ctx, 523, now, 0.3, 0.06)
+  playWarmTone(ctx, 659, now + 0.15, 0.3, 0.06)
+  playWarmTone(ctx, 784, now + 0.30, 0.3, 0.06)
+  playWarmTone(ctx, 1047, now + 0.45, 0.45, 0.08)
 
-  // نویز خفیف = درخشش
   playNoiseBurst(ctx, 6000, 0.5, 0.08, 0.02, 'highpass')
 }
 
-// ─── کلیک نرم: ضربه خیلی ظریف ───
+// ─── کلیک نرم ───
 export function playSoftClick(): void {
   if (!isSoundEnabled()) return
   const ctx = getAudioContext()
@@ -274,6 +281,6 @@ export function playError(): void {
   if (!ctx) return
 
   const now = ctx.currentTime
-  playWarmTone(ctx, 330, now, 0.22, 0.06)       // E4
-  playWarmTone(ctx, 262, now + 0.14, 0.28, 0.05) // C4
+  playWarmTone(ctx, 330, now, 0.22, 0.06)
+  playWarmTone(ctx, 262, now + 0.14, 0.28, 0.05)
 }
