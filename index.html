@@ -18,6 +18,25 @@
 
     <!-- Font -->
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+
+    <!-- ─── جلوگیری از فلش سفید: تم را قبل از React اعمال کن ─── -->
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('modo-theme');
+          var isDark = saved === null ? true : saved === 'dark';
+          if (isDark) {
+            document.documentElement.classList.add('dark');
+          }
+          var accent = localStorage.getItem('modo-accent');
+          if (accent && ['emerald','blue','purple','rose','amber'].indexOf(accent) !== -1) {
+            document.documentElement.setAttribute('data-accent', accent);
+          }
+        } catch(e) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
